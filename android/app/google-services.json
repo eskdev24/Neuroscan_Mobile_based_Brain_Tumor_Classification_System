@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "93488049504",
+    "firebase_url": "https://neuroscan-ai-v1-default-rtdb.firebaseio.com",
+    "project_id": "neuroscan-ai-v1",
+    "storage_bucket": "neuroscan-ai-v1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:93488049504:android:2bd380ba7ae387ce2e8205",
+        "android_client_info": {
+          "package_name": "com.bratsml.neuroscan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "93488049504-q9c9k9d3idg6fg173d7f7ock8juaabh1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bratsml.neuroscan",
+            "certificate_hash": "ed67213274badcf28027a9fd250dd0fb8ddcacc0"
+          }
+        },
+        {
+          "client_id": "93488049504-a3evfqh34g9ul09k54vsr16ep4h3v5kv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnvANC_9l8hx4oOm8X9p5ehF4d380OSe8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "93488049504-a3evfqh34g9ul09k54vsr16ep4h3v5kv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
