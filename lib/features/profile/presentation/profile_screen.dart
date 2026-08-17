@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/routing/routes.dart';
 import '../application/profile_controller.dart';
 
 final profileProvider = AsyncNotifierProvider<ProfileController, UserProfile>(
@@ -7,9 +10,7 @@ final profileProvider = AsyncNotifierProvider<ProfileController, UserProfile>(
 );
 
 class ProfileScreen extends ConsumerStatefulWidget {
-  final VoidCallback onSignOut;
-
-  const ProfileScreen({super.key, required this.onSignOut});
+  const ProfileScreen({super.key});
 
   @override
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
@@ -86,7 +87,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 width: double.infinity,
                 height: 56,
                 child: OutlinedButton.icon(
-                  onPressed: widget.onSignOut,
+                  onPressed: () async {
+                    await FirebaseAuth.instance.signOut();
+                    if (context.mounted) context.go('/${Routes.welcome}');
+                  },
                   icon: const Icon(Icons.logout, color: Color(0xFFE57373)),
                   label: const Text('Sign Out', style: TextStyle(fontSize: 16)),
                   style: OutlinedButton.styleFrom(

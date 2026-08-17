@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/routing/routes.dart';
 import '../application/scan_controller.dart';
 
 class ResultsScreen extends ConsumerWidget {
@@ -200,7 +202,7 @@ class ResultsScreen extends ConsumerWidget {
                     await ref.read(scanControllerProvider.notifier).saveResult();
                     ref.read(scanControllerProvider.notifier).clearResult();
                     if (context.mounted) {
-                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      context.go('/${Routes.home}');
                     }
                   },
                   icon: const Icon(Icons.save),

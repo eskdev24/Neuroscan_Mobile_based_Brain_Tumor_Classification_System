@@ -45,11 +45,17 @@ class _NeuroscanAppState extends ConsumerState<NeuroscanApp> {
         ),
         GoRoute(
           path: '/${Routes.home}',
-          builder: (_, __) => const _ScaffoldWithNav(body: HomeScreen()),
+          builder: (_, __) => _ScaffoldWithBody(
+            body: const HomeScreen(),
+            bottomNavigationBar: const _BottomNav(),
+          ),
         ),
         GoRoute(
           path: '/${Routes.scan}',
-          builder: (_, __) => const _ScaffoldWithBody(body: ScanScreen()),
+          builder: (_, __) => _ScaffoldWithBody(
+            body: const ScanScreen(),
+            bottomNavigationBar: const _BottomNav(),
+          ),
         ),
         GoRoute(
           path: '/${Routes.results}',
@@ -57,7 +63,10 @@ class _NeuroscanAppState extends ConsumerState<NeuroscanApp> {
         ),
         GoRoute(
           path: '/${Routes.history}',
-          builder: (_, __) => const _ScaffoldWithNav(body: HistoryScreen()),
+          builder: (_, __) => _ScaffoldWithBody(
+            body: const HistoryScreen(),
+            bottomNavigationBar: const _BottomNav(),
+          ),
         ),
         GoRoute(
           path: '/${Routes.about}',
@@ -69,13 +78,9 @@ class _NeuroscanAppState extends ConsumerState<NeuroscanApp> {
         ),
         GoRoute(
           path: '/${Routes.profile}',
-          builder: (_, __) => _ScaffoldWithNav(
-            body: ProfileScreen(
-              onSignOut: () async {
-                await FirebaseAuth.instance.signOut();
-                if (context.mounted) context.go('/${Routes.welcome}');
-              },
-            ),
+          builder: (_, __) => _ScaffoldWithBody(
+            body: const ProfileScreen(),
+            bottomNavigationBar: const _BottomNav(),
           ),
         ),
       ],
@@ -92,33 +97,25 @@ class _NeuroscanAppState extends ConsumerState<NeuroscanApp> {
   }
 }
 
-class _ScaffoldWithNav extends StatelessWidget {
-  final Widget body;
-  const _ScaffoldWithNav({required this.body});
+class _BottomNav extends StatelessWidget {
+  const _BottomNav();
 
   @override
   Widget build(BuildContext context) {
     final path = GoRouterState.of(context).uri.path;
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(_getTitle(path)),
-      ),
-      body: body,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _getNavIndex(path),
-        onDestinationSelected: (i) {
-          final routes = [Routes.home, Routes.scan, Routes.history, Routes.profile];
-          context.go('/${routes[i]}');
-        },
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.document_scanner), label: 'Scan'),
-          NavigationDestination(icon: Icon(Icons.history), label: 'History'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
+    return NavigationBar(
+      selectedIndex: _getNavIndex(path),
+      onDestinationSelected: (i) {
+        final routes = [Routes.home, Routes.scan, Routes.history, Routes.profile];
+        context.go('/${routes[i]}');
+      },
+      destinations: const [
+        NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+        NavigationDestination(icon: Icon(Icons.document_scanner), label: 'Scan'),
+        NavigationDestination(icon: Icon(Icons.history), label: 'History'),
+        NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
+      ],
     );
   }
 
@@ -128,43 +125,41 @@ class _ScaffoldWithNav extends StatelessWidget {
     if (path.contains(Routes.profile)) return 3;
     return 0;
   }
-
-  String _getTitle(String path) {
-    if (path.contains(Routes.home)) return 'Neuroscan AI';
-    if (path.contains(Routes.scan)) return 'Scan';
-    if (path.contains(Routes.results)) return 'Results';
-    if (path.contains(Routes.history)) return 'History';
-    if (path.contains(Routes.about)) return 'About';
-    if (path.contains(Routes.notifications)) return 'Notifications';
-    if (path.contains(Routes.profile)) return 'Profile';
-    return 'Neuroscan AI';
-  }
 }
 
 class _ScaffoldWithBody extends StatelessWidget {
   final Widget body;
-  const _ScaffoldWithBody({required this.body});
+  final Widget? bottomNavigationBar;
+  const _ScaffoldWithBody({required this.body, this.bottomNavigationBar});
 
   @override
   Widget build(BuildContext context) {
+    final path = GoRouterState.of(context).uri.path;
+    final showBack = !path.contains(Routes.home);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(_getTitle(GoRouterState.of(context).uri.path)),
+        leading: showBack
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.go('/${Routes.home}'),
+              )
+            : null,
+        title: Text(_getTitle(path)),
       ),
       body: body,
+      bottomNavigationBar: bottomNavigationBar,
     );
   }
 
   String _getTitle(String path) {
     if (path.contains(Routes.scan)) return 'Scan';
+    if (path.contains(Routes.history)) return 'History';
     if (path.contains(Routes.results)) return 'Results';
     if (path.contains(Routes.notifications)) return 'Notifications';
     if (path.contains(Routes.about)) return 'About';
-    return '';
+    if (path.contains(Routes.profile)) return 'Profile';
+    return 'Neuroscan AI';
   }
 }

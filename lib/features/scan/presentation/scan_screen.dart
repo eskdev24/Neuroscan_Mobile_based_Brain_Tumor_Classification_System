@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../core/routing/routes.dart';
 import '../application/scan_controller.dart';
 import 'loading_overlay.dart';
-import 'results_screen.dart';
 
 class ScanScreen extends ConsumerStatefulWidget {
   const ScanScreen({super.key});
@@ -105,8 +106,13 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
 
     ref.listen<AsyncValue<dynamic>>(scanControllerProvider, (previous, next) {
       if (next.hasValue && next.value != null) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const ResultsScreen()),
+        context.push('/${Routes.results}');
+      } else if (next.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error.toString()),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
         );
       }
     });

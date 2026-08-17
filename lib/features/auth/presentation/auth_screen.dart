@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/routing/routes.dart';
 import '../../../shared/widgets/primary_button.dart';
 import '../application/auth_controller.dart';
 import '../application/auth_state.dart';
@@ -80,9 +82,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
     ref.listen<AuthState>(authControllerProvider, (prev, next) {
       if (next is AuthSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Signed in successfully')),
-        );
+        if (context.mounted) context.go('/${Routes.home}');
       } else if (next is AuthSignUpSuccess) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

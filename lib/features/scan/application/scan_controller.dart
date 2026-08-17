@@ -7,7 +7,8 @@ import '../data/scan_repository.dart';
 import '../data/scan_local_dao.dart';
 
 class ScanController extends Notifier<AsyncValue<PredictionResult?>> {
-  late TFLiteClassifier _classifier;
+  TFLiteClassifier? _classifier;
+  bool _classifierReady = false;
   late ScanRepository _repo;
   Uint8List? _currentImageBytes;
 
@@ -17,17 +18,31 @@ class ScanController extends Notifier<AsyncValue<PredictionResult?>> {
     return const AsyncValue.data(null);
   }
 
+  bool get classifierReady => _classifierReady;
+
   Future<void> initClassifier() async {
-    _classifier = await TFLiteClassifier.getInstance();
+    try {
+      _classifier = await TFLiteClassifier.getInstance();
+      _classifierReady = true;
+    } catch (e) {
+      _classifierReady = false;
+    }
   }
 
   Future<void> analyzeImage(Uint8List imageBytes) async {
+    if (!_classifierReady || _classifier == null) {
+      state = AsyncValue.error(
+        'Model not loaded yet. Please try again.',
+        StackTrace.current,
+      );
+      return;
+    }
+
     _currentImageBytes = imageBytes;
     state = const AsyncValue.loading();
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
       final sw = Stopwatch()..start();
-      final scores = await _classifier.classify(imageBytes);
+      final scores = await _classifier!.classify(imageBytes);
       sw.stop();
       if (scores.isEmpty) {
         state = AsyncValue.error('Failed to classify image.', StackTrace.current);
