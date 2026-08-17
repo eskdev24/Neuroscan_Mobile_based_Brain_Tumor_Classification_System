@@ -21,6 +21,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   String? _selectedRole;
+  bool _obscurePassword = true;
 
   static const _roles = [
     'Doctor',
@@ -42,6 +43,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     setState(() {
       _isSignUp = !_isSignUp;
       _signUpStep = 0;
+      _obscurePassword = true;
     });
     ref.read(authControllerProvider.notifier).reset();
   }
@@ -144,7 +146,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       controller: _passwordCtrl,
                       label: 'Password',
                       icon: Icons.lock_outlined,
-                      obscure: true,
+                      obscure: _obscurePassword,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
+                        onPressed: () =>
+                            setState(() => _obscurePassword = !_obscurePassword),
+                      ),
                       validator: (v) {
                         if (v == null || v.isEmpty) return 'Password is required';
                         if (v.length < 6) return 'At least 6 characters';
@@ -201,7 +212,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       controller: _passwordCtrl,
                       label: 'Password',
                       icon: Icons.lock_outlined,
-                      obscure: true,
+                      obscure: _obscurePassword,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                        ),
+                        onPressed: () =>
+                            setState(() => _obscurePassword = !_obscurePassword),
+                      ),
                       validator: (v) {
                         if (v == null || v.isEmpty) return 'Password is required';
                         return null;
@@ -252,6 +272,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     bool obscure = false,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
+    Widget? suffixIcon,
   }) {
     return TextFormField(
       controller: controller,
@@ -261,6 +282,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
+        suffixIcon: suffixIcon,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
         fillColor: Theme.of(context).colorScheme.surface,
