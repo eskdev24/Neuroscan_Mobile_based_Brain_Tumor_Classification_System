@@ -42,5 +42,6 @@ dev_dependencies:
 flutter:
   assets:
     - assets/models/brain_tumor_model.tflite
+    - assets/models/labels.txt
 
   uses-material-design: true
