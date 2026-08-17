@@ -24,4 +24,9 @@ final appTheme = ThemeData(
     surfaceContainerHigh: c.surfaceContainerHigh,
   ),
   typography: appTypography,
+  inputDecorationTheme: const InputDecorationTheme(
+    labelStyle: TextStyle(textBaseline: TextBaseline.alphabetic),
+    floatingLabelStyle: TextStyle(textBaseline: TextBaseline.alphabetic),
+    hintStyle: TextStyle(textBaseline: TextBaseline.alphabetic),
+  ),
 );
