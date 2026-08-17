@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/firebase/firebase_init.dart';
@@ -7,23 +8,34 @@ import 'app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  try {
-    await FirebaseInit.initialize();
-  } catch (e) {
-    debugPrint('Firebase init failed: $e');
-  }
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint('FlutterError: ${details.exceptionAsString()}');
+    debugPrint('Stack: ${details.stack}');
+  };
 
-  try {
-    await NotificationService.initialize();
-  } catch (e) {
-    debugPrint('Notification init failed: $e');
-  }
+  runZonedGuarded<Future<void>>(() async {
+    try {
+      await FirebaseInit.initialize();
+    } catch (e) {
+      debugPrint('Firebase init failed: $e');
+    }
 
-  try {
-    await NotificationService.requestPermission();
-  } catch (e) {
-    debugPrint('Notification permission failed: $e');
-  }
+    try {
+      await NotificationService.initialize();
+    } catch (e) {
+      debugPrint('Notification init failed: $e');
+    }
 
-  runApp(const ProviderScope(child: NeuroscanApp()));
+    try {
+      await NotificationService.requestPermission();
+    } catch (e) {
+      debugPrint('Notification permission failed: $e');
+    }
+
+    runApp(const ProviderScope(child: NeuroscanApp()));
+  }, (error, stack) {
+    debugPrint('Uncaught error: $error');
+    debugPrint('Stack: $stack');
+  });
 }
