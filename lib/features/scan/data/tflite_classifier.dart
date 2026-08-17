@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -11,9 +12,21 @@ class TFLiteClassifier {
   static Future<TFLiteClassifier> getInstance() async {
     if (_instance != null) return _instance!;
     final instance = TFLiteClassifier._();
-    instance._interpreter = await Interpreter.fromAsset('models/brain_tumor_model.tflite');
+    try {
+      instance._interpreter = await Interpreter.fromAsset('assets/models/brain_tumor_model.tflite');
+    } catch (e) {
+      print('[TFLiteClassifier] Error loading model: $e');
+      rethrow;
+    }
     _instance = instance;
     return instance;
+  }
+
+  List<double> _softmax(List<double> logits) {
+    final maxLogit = logits.reduce(max);
+    final exps = logits.map((l) => exp(l - maxLogit)).toList();
+    final sumExps = exps.reduce((a, b) => a + b);
+    return exps.map((e) => e / sumExps).toList();
   }
 
   Future<Map<String, double>> classify(Uint8List imageBytes) async {
@@ -54,10 +67,13 @@ class TFLiteClassifier {
     final outputBuffer = Float32List(numClasses);
     interp.run(inputBuffer.reshape([1, inputH, inputW, channels]), outputBuffer.reshape([1, numClasses]));
 
+    // Apply softmax to ensure proper probabilities
+    final probabilities = _softmax(outputBuffer.toList());
+
     final result = <String, double>{};
     const labels = ['Glioma', 'Meningioma', 'No Tumor', 'Pituitary Tumor'];
     for (var i = 0; i < numClasses && i < labels.length; i++) {
-      result[labels[i]] = outputBuffer[i] * 100;
+      result[labels[i]] = probabilities[i] * 100;
     }
     return result;
   }

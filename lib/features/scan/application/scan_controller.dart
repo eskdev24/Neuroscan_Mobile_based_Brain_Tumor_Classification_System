@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../shared/models/prediction_result.dart';
 import '../../../shared/models/scan_item.dart';
 import '../data/tflite_classifier.dart';
@@ -11,6 +13,7 @@ class ScanController extends Notifier<AsyncValue<PredictionResult?>> {
   bool _classifierReady = false;
   late ScanRepository _repo;
   Uint8List? _currentImageBytes;
+  String? _currentImagePath;
 
   @override
   AsyncValue<PredictionResult?> build() {
@@ -39,6 +42,7 @@ class ScanController extends Notifier<AsyncValue<PredictionResult?>> {
     }
 
     _currentImageBytes = imageBytes;
+    _currentImagePath = null;
     state = const AsyncValue.loading();
     try {
       final sw = Stopwatch()..start();
@@ -67,13 +71,30 @@ class ScanController extends Notifier<AsyncValue<PredictionResult?>> {
     }
   }
 
+  Future<String?> _saveImageToFile(Uint8List imageBytes) async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final filename = 'scan_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final file = File('${dir.path}/$filename');
+      await file.writeAsBytes(imageBytes);
+      return file.path;
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<void> saveResult() async {
     final result = state.value;
     if (result == null || _currentImageBytes == null) return;
+
+    final path = await _saveImageToFile(_currentImageBytes!);
+    _currentImagePath = path;
+
     final item = ScanItem(
       resultType: result.type,
       confidence: result.confidence,
       timestamp: DateTime.now().millisecondsSinceEpoch,
+      imagePath: path,
       gliomaScore: result.scores['Glioma'] ?? 0,
       meningiomaScore: result.scores['Meningioma'] ?? 0,
       pituitaryScore: result.scores['Pituitary Tumor'] ?? 0,
@@ -85,10 +106,12 @@ class ScanController extends Notifier<AsyncValue<PredictionResult?>> {
 
   void clearResult() {
     _currentImageBytes = null;
+    _currentImagePath = null;
     state = const AsyncValue.data(null);
   }
 
   Uint8List? get currentImageBytes => _currentImageBytes;
+  String? get currentImagePath => _currentImagePath;
 }
 
 final scanControllerProvider =
