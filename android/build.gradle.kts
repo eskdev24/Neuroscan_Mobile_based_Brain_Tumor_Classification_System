@@ -22,6 +22,14 @@ subprojects {
             compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         }
     }
+    project.plugins.withId("com.android.library") {
+        project.afterEvaluate {
+            android?.compileOptions?.apply {
+                sourceCompatibility = JavaVersion.VERSION_17
+                targetCompatibility = JavaVersion.VERSION_17
+            }
+        }
+    }
 }
 
 tasks.register<Delete>("clean") {
