@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/firebase/firebase_init.dart';
@@ -7,6 +8,19 @@ import 'app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Material(
+      color: Colors.red.shade900,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          '${details.exceptionAsString()}\n\n${details.stack ?? ""}',
+          style: const TextStyle(color: Colors.yellow, fontSize: 12),
+        ),
+      ),
+    );
+  };
 
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
@@ -17,20 +31,23 @@ void main() async {
   runZonedGuarded<Future<void>>(() async {
     try {
       await FirebaseInit.initialize();
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('Firebase init failed: $e');
+      debugPrint('Stack: $st');
     }
 
     try {
       await NotificationService.initialize();
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('Notification init failed: $e');
+      debugPrint('Stack: $st');
     }
 
     try {
       await NotificationService.requestPermission();
-    } catch (e) {
+    } catch (e, st) {
       debugPrint('Notification permission failed: $e');
+      debugPrint('Stack: $st');
     }
 
     runApp(const ProviderScope(child: NeuroscanApp()));

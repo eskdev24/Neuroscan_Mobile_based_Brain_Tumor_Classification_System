@@ -1,10 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/auth_repository.dart';
 import 'auth_state.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  return AuthRepository();
+  try {
+    return AuthRepository(
+      auth: FirebaseAuth.instance,
+      db: FirebaseDatabase.instance,
+    );
+  } catch (e) {
+    throw StateError(
+      'Failed to create AuthRepository. Firebase may not be initialized. Error: $e',
+    );
+  }
 });
 
 final authControllerProvider =

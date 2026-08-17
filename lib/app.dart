@@ -15,12 +15,20 @@ import 'features/about/presentation/about_screen.dart';
 import 'features/notifications/presentation/notifications_screen.dart';
 import 'features/profile/presentation/profile_screen.dart';
 
-class NeuroscanApp extends ConsumerWidget {
+class NeuroscanApp extends ConsumerStatefulWidget {
   const NeuroscanApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final router = GoRouter(
+  ConsumerState<NeuroscanApp> createState() => _NeuroscanAppState();
+}
+
+class _NeuroscanAppState extends ConsumerState<NeuroscanApp> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _router = GoRouter(
       initialLocation: '/${Routes.splash}',
       routes: [
         GoRoute(
@@ -72,11 +80,14 @@ class NeuroscanApp extends ConsumerWidget {
         ),
       ],
     );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Neuroscan AI',
       theme: appTheme,
-      routerConfig: router,
+      routerConfig: _router,
     );
   }
 }
