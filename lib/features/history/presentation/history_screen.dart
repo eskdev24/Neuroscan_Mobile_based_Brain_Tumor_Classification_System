@@ -13,38 +13,47 @@ class HistoryScreen extends ConsumerStatefulWidget {
 }
 
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
-  ScanItem? _selectedItem;
-  ScanItem? _itemToDelete;
-  bool _showClearAllDialog = false;
-
   void _onItemTap(ScanItem item) {
-    setState(() => _selectedItem = item);
+    showDialog(
+      context: context,
+      builder: (_) => HistoryDetailDialog(
+        item: item,
+        onDismiss: () => Navigator.of(context).pop(),
+        onDelete: () {
+          Navigator.of(context).pop();
+          ref.read(historyControllerProvider.notifier).deleteItem(item);
+        },
+      ),
+    );
   }
 
   void _onItemSwipeDelete(ScanItem item) {
-    setState(() => _itemToDelete = item);
-  }
-
-  void _confirmDelete() {
-    if (_itemToDelete != null) {
-      ref.read(historyControllerProvider.notifier).deleteItem(_itemToDelete!);
-      setState(() {
-        if (_selectedItem?.id == _itemToDelete?.id) _selectedItem = null;
-        _itemToDelete = null;
-      });
-    }
-  }
-
-  void _cancelDelete() {
-    setState(() => _itemToDelete = null);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Item?'),
+        content: const Text(
+          'Are you sure you want to delete this scan result? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              ref.read(historyControllerProvider.notifier).deleteItem(item);
+            },
+            child: Text('Delete', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _confirmClearAll() {
     ref.read(historyControllerProvider.notifier).clearHistory();
-    setState(() {
-      _showClearAllDialog = false;
-      _selectedItem = null;
-    });
   }
 
   @override
@@ -54,10 +63,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
     return Column(
       children: [
-        if (_showClearAllDialog)
-          _buildClearAllDialog(cs),
-        if (_itemToDelete != null)
-          _buildDeleteItemDialog(cs),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -79,7 +84,30 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     historyAsync.when(
                       data: (history) => history.isNotEmpty
                           ? TextButton(
-                              onPressed: () => setState(() => _showClearAllDialog = true),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Clear All History?'),
+                                    content: const Text(
+                                      'This will permanently delete all your scan history. This action cannot be undone.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(ctx).pop(),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(ctx).pop();
+                                          _confirmClearAll();
+                                        },
+                                        child: Text('Delete All', style: TextStyle(color: cs.error)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                               child: Text('Clear All', style: TextStyle(color: cs.error)),
                             )
                           : const SizedBox.shrink(),
@@ -147,55 +175,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               ],
             ),
           ),
-        ),
-        if (_selectedItem != null)
-          HistoryDetailDialog(
-            item: _selectedItem!,
-            onDismiss: () => setState(() => _selectedItem = null),
-            onDelete: () {
-              setState(() {
-                _itemToDelete = _selectedItem;
-                _selectedItem = null;
-              });
-            },
-          ),
-      ],
-    );
-  }
-
-  Widget _buildClearAllDialog(ColorScheme cs) {
-    return AlertDialog(
-      title: const Text('Clear All History?'),
-      content: const Text(
-        'This will permanently delete all your scan history. This action cannot be undone.',
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => setState(() => _showClearAllDialog = false),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: _confirmClearAll,
-          child: Text('Delete All', style: TextStyle(color: cs.error)),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDeleteItemDialog(ColorScheme cs) {
-    return AlertDialog(
-      title: const Text('Delete Item?'),
-      content: const Text(
-        'Are you sure you want to delete this scan result? This action cannot be undone.',
-      ),
-      actions: [
-        TextButton(
-          onPressed: _cancelDelete,
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: _confirmDelete,
-          child: Text('Delete', style: TextStyle(color: cs.error)),
         ),
       ],
     );

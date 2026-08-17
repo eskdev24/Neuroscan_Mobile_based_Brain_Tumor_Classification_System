@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+import '../../../core/notifications/notification_service.dart';
 import '../../../shared/models/prediction_result.dart';
 import '../../../shared/models/scan_item.dart';
 import '../data/tflite_classifier.dart';
@@ -50,6 +51,10 @@ class ScanController extends Notifier<AsyncValue<PredictionResult?>> {
       sw.stop();
       if (scores.isEmpty) {
         state = AsyncValue.error('Failed to classify image.', StackTrace.current);
+        NotificationService.showNotification(
+          'Scan Failed',
+          'We were unable to classify this brain MRI scan.',
+        );
         return;
       }
       String primaryType = 'No Tumor';
@@ -60,14 +65,23 @@ class ScanController extends Notifier<AsyncValue<PredictionResult?>> {
           primaryType = entry.key;
         }
       }
+      final confidencePercent = (maxConfidence * 100).toStringAsFixed(1);
       state = AsyncValue.data(PredictionResult(
         type: primaryType,
         confidence: maxConfidence,
         scores: scores,
         inferenceTimeMs: sw.elapsedMilliseconds,
       ));
+      NotificationService.showNotification(
+        'Scan Completed Successfully',
+        'Analysis found: $primaryType ($confidencePercent% confidence).',
+      );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
+      NotificationService.showNotification(
+        'Scan Process Error',
+        'An error occurred during scanning: $e',
+      );
     }
   }
 
@@ -87,21 +101,32 @@ class ScanController extends Notifier<AsyncValue<PredictionResult?>> {
     final result = state.value;
     if (result == null || _currentImageBytes == null) return;
 
-    final path = await _saveImageToFile(_currentImageBytes!);
-    _currentImagePath = path;
+    try {
+      final path = await _saveImageToFile(_currentImageBytes!);
+      _currentImagePath = path;
 
-    final item = ScanItem(
-      resultType: result.type,
-      confidence: result.confidence,
-      timestamp: DateTime.now().millisecondsSinceEpoch,
-      imagePath: path,
-      gliomaScore: result.scores['Glioma'] ?? 0,
-      meningiomaScore: result.scores['Meningioma'] ?? 0,
-      pituitaryScore: result.scores['Pituitary Tumor'] ?? 0,
-      noTumorScore: result.scores['No Tumor'] ?? 0,
-      inferenceTimeMs: result.inferenceTimeMs,
-    );
-    await _repo.insert(item);
+      final item = ScanItem(
+        resultType: result.type,
+        confidence: result.confidence,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+        imagePath: path,
+        gliomaScore: result.scores['Glioma'] ?? 0,
+        meningiomaScore: result.scores['Meningioma'] ?? 0,
+        pituitaryScore: result.scores['Pituitary Tumor'] ?? 0,
+        noTumorScore: result.scores['No Tumor'] ?? 0,
+        inferenceTimeMs: result.inferenceTimeMs,
+      );
+      await _repo.insert(item);
+      NotificationService.showNotification(
+        'Scan Saved Locally',
+        'Scan added to your history successfully.',
+      );
+    } catch (e) {
+      NotificationService.showNotification(
+        'Error Saving Result',
+        'Could not save scan: $e',
+      );
+    }
   }
 
   void clearResult() {

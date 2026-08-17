@@ -4,10 +4,6 @@ import 'package:intl/intl.dart';
 import '../../../shared/models/notification_item.dart';
 import '../application/notifications_controller.dart';
 
-final notificationsProvider = NotifierProvider<NotificationsController, List<NotificationItem>>(
-  NotificationsController.new,
-);
-
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 

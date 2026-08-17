@@ -1,9 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/notifications/notification_service.dart';
 import '../../../shared/models/notification_item.dart';
+
+final notificationsProvider = NotifierProvider<NotificationsController, List<NotificationItem>>(
+  NotificationsController.new,
+);
 
 class NotificationsController extends Notifier<List<NotificationItem>> {
   @override
-  List<NotificationItem> build() => [];
+  List<NotificationItem> build() {
+    // Wire up NotificationService to feed this in-memory list
+    NotificationService.onNotificationAdded = (title, message) {
+      addNotification(title, message);
+    };
+    return [];
+  }
 
   void addNotification(String title, String message) {
     state = [
@@ -16,4 +27,6 @@ class NotificationsController extends Notifier<List<NotificationItem>> {
       ...state,
     ];
   }
+
+  int get unreadCount => state.length;
 }

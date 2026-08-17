@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/notifications/notification_service.dart';
 import '../../../shared/models/scan_item.dart';
 import '../../scan/data/scan_repository.dart';
 import '../../scan/data/scan_local_dao.dart';
@@ -17,6 +18,33 @@ class HistoryController extends StreamNotifier<List<ScanItem>> {
     return _repo.allScans;
   }
 
-  Future<void> deleteItem(ScanItem item) => _repo.deleteItem(item);
-  Future<void> clearHistory() => _repo.clear();
+  Future<void> deleteItem(ScanItem item) async {
+    try {
+      await _repo.deleteItem(item);
+      NotificationService.showNotification(
+        'Item Deleted',
+        'The scan history item has been deleted.',
+      );
+    } catch (e) {
+      NotificationService.showNotification(
+        'Error Deleting Item',
+        'Could not delete item: $e',
+      );
+    }
+  }
+
+  Future<void> clearHistory() async {
+    try {
+      await _repo.clear();
+      NotificationService.showNotification(
+        'History Cleared',
+        'All scan history has been removed.',
+      );
+    } catch (e) {
+      NotificationService.showNotification(
+        'Error Clearing History',
+        'Could not clear history: $e',
+      );
+    }
+  }
 }

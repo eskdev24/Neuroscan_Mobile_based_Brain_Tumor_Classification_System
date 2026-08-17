@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/routing/routes.dart';
@@ -12,14 +10,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _userEmail = '';
-  String _userRole = 'User';
   DateTime _currentTime = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
     _startClock();
   }
 
@@ -30,18 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() => _currentTime = DateTime.now());
       return true;
     });
-  }
-
-  Future<void> _loadUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      _userEmail = user.email ?? '';
-      try {
-        final snapshot = await FirebaseDatabase.instance.ref('users/${user.uid}').get();
-        _userRole = (snapshot.value as Map?)?['role'] as String? ?? 'User';
-      } catch (_) {}
-      setState(() {});
-    }
   }
 
   String get _greeting {
@@ -63,18 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const SizedBox(height: 24),
           Text(_greeting, style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: cs.onSurface)),
-          if (_userEmail.isNotEmpty) ...[
-            Text(_userEmail, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: cs.primaryContainer.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(_userRole, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: cs.primary)),
-            ),
-          ],
           Text(dateStr, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
           const SizedBox(height: 32),
           _ActionCard(

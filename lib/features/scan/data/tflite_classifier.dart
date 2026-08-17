@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -22,13 +21,6 @@ class TFLiteClassifier {
     return instance;
   }
 
-  List<double> _softmax(List<double> logits) {
-    final maxLogit = logits.reduce(max);
-    final exps = logits.map((l) => exp(l - maxLogit)).toList();
-    final sumExps = exps.reduce((a, b) => a + b);
-    return exps.map((e) => e / sumExps).toList();
-  }
-
   Future<Map<String, double>> classify(Uint8List imageBytes) async {
     final interp = _interpreter!;
     final inputTensor = interp.getInputTensor(0);
@@ -39,8 +31,11 @@ class TFLiteClassifier {
 
     final codec = await ui.instantiateImageCodec(imageBytes);
     final frame = await codec.getNextFrame();
-    final image = frame.image;
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final originalImage = frame.image;
+
+    // Resize image to model input dimensions
+    final resizedImage = await _resizeImage(originalImage, inputW, inputH);
+    final byteData = await resizedImage.toByteData(format: ui.ImageByteFormat.rawRgba);
     final pixels = byteData!.buffer.asUint8List();
 
     final inputBuffer = Float32List(inputH * inputW * channels);
@@ -67,15 +62,26 @@ class TFLiteClassifier {
     final outputBuffer = Float32List(numClasses);
     interp.run(inputBuffer.reshape([1, inputH, inputW, channels]), outputBuffer.reshape([1, numClasses]));
 
-    // Apply softmax to ensure proper probabilities
-    final probabilities = _softmax(outputBuffer.toList());
-
     final result = <String, double>{};
     const labels = ['Glioma', 'Meningioma', 'No Tumor', 'Pituitary Tumor'];
     for (var i = 0; i < numClasses && i < labels.length; i++) {
-      result[labels[i]] = probabilities[i] * 100;
+      result[labels[i]] = outputBuffer[i] * 100;
     }
     return result;
+  }
+
+  Future<ui.Image> _resizeImage(ui.Image image, int targetWidth, int targetHeight) async {
+    final recorder = ui.PictureRecorder();
+    final canvas = ui.Canvas(recorder);
+    final paint = ui.Paint()..filterQuality = ui.FilterQuality.high;
+    canvas.drawImageRect(
+      image,
+      ui.Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+      ui.Rect.fromLTWH(0, 0, targetWidth.toDouble(), targetHeight.toDouble()),
+      paint,
+    );
+    final picture = recorder.endRecording();
+    return picture.toImage(targetWidth, targetHeight);
   }
 
   void close() {

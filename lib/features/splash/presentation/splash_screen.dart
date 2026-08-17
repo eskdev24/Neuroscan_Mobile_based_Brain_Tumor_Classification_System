@@ -38,22 +38,57 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: cs.surface,
+    return const Scaffold(
+      backgroundColor: Color(0xFF0B1426),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.psychology, size: 160, color: cs.primary),
-            const SizedBox(height: 32),
-            Text('Neuroscan AI', style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: cs.onSurface)),
-            Text('AI-Powered Brain Tumor Diagnosis',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
-            const SizedBox(height: 64),
-            CircularProgressIndicator(color: cs.primary, strokeWidth: 4),
-            const SizedBox(height: 16),
-            Text('LOADING MODEL...', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: cs.primary)),
+            Spacer(flex: 3),
+            Image(
+              image: AssetImage('assets/images/img_splash.png'),
+              width: 120,
+              height: 120,
+            ),
+            SizedBox(height: 32),
+            Text(
+              'Neuroscan AI',
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                letterSpacing: 0.5,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'AI-Powered Brain Tumor Diagnosis',
+              style: TextStyle(
+                fontSize: 14,
+                color: Color(0xFF8B9CB6),
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            Spacer(flex: 3),
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: Color(0xFF5B7BA5),
+              ),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'LOADING MODEL...',
+              style: TextStyle(
+                fontSize: 12,
+                letterSpacing: 2,
+                color: Color(0xFF5B7BA5),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Spacer(flex: 2),
           ],
         ),
       ),

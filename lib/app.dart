@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/routing/routes.dart';
 import 'core/theme/theme.dart';
@@ -13,6 +12,7 @@ import 'features/scan/presentation/results_screen.dart';
 import 'features/history/presentation/history_screen.dart';
 import 'features/about/presentation/about_screen.dart';
 import 'features/notifications/presentation/notifications_screen.dart';
+import 'features/notifications/application/notifications_controller.dart';
 import 'features/profile/presentation/profile_screen.dart';
 
 class NeuroscanApp extends ConsumerStatefulWidget {
@@ -127,15 +127,21 @@ class _BottomNav extends StatelessWidget {
   }
 }
 
-class _ScaffoldWithBody extends StatelessWidget {
+class _ScaffoldWithBody extends ConsumerWidget {
   final Widget body;
   final Widget? bottomNavigationBar;
-  const _ScaffoldWithBody({required this.body, this.bottomNavigationBar});
+  const _ScaffoldWithBody({
+    required this.body,
+    this.bottomNavigationBar,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final path = GoRouterState.of(context).uri.path;
     final showBack = !path.contains(Routes.home);
+    final isNotificationsScreen = path.contains(Routes.notifications);
+    final notifications = ref.watch(notificationsProvider);
+    final count = notifications.length;
 
     return Scaffold(
       appBar: AppBar(
@@ -147,6 +153,21 @@ class _ScaffoldWithBody extends StatelessWidget {
               )
             : null,
         title: Text(_getTitle(path)),
+        actions: isNotificationsScreen
+            ? null
+            : [
+                IconButton(
+                  icon: Badge(
+                    isLabelVisible: count > 0,
+                    label: Text(
+                      count > 99 ? '99+' : '$count',
+                      style: const TextStyle(fontSize: 10, color: Colors.white),
+                    ),
+                    child: const Icon(Icons.notifications_outlined),
+                  ),
+                  onPressed: () => context.push('/${Routes.notifications}'),
+                ),
+              ],
       ),
       body: body,
       bottomNavigationBar: bottomNavigationBar,

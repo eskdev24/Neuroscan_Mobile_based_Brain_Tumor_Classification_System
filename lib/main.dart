@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/firebase/firebase_init.dart';
@@ -25,34 +23,25 @@ void main() async {
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
     debugPrint('FlutterError: ${details.exceptionAsString()}');
-    debugPrint('Stack: ${details.stack}');
   };
 
-  runZonedGuarded<Future<void>>(() async {
-    try {
-      await FirebaseInit.initialize();
-    } catch (e, st) {
-      debugPrint('Firebase init failed: $e');
-      debugPrint('Stack: $st');
-    }
+  try {
+    await FirebaseInit.initialize();
+  } catch (e) {
+    debugPrint('Firebase init failed: $e');
+  }
 
-    try {
-      await NotificationService.initialize();
-    } catch (e, st) {
-      debugPrint('Notification init failed: $e');
-      debugPrint('Stack: $st');
-    }
+  try {
+    await NotificationService.initialize();
+  } catch (e) {
+    debugPrint('Notification init failed: $e');
+  }
 
-    try {
-      await NotificationService.requestPermission();
-    } catch (e, st) {
-      debugPrint('Notification permission failed: $e');
-      debugPrint('Stack: $st');
-    }
+  try {
+    await NotificationService.requestPermission();
+  } catch (e) {
+    debugPrint('Notification permission failed: $e');
+  }
 
-    runApp(const ProviderScope(child: NeuroscanApp()));
-  }, (error, stack) {
-    debugPrint('Uncaught error: $error');
-    debugPrint('Stack: $stack');
-  });
+  runApp(const ProviderScope(child: NeuroscanApp()));
 }

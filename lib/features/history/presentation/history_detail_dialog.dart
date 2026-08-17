@@ -120,18 +120,17 @@ class _HistoryDetailDialogState extends State<HistoryDetailDialog> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       backgroundColor: cs.surface,
-      child: Container(
-        width: MediaQuery.of(context).size.width,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.85,
+          maxHeight: MediaQuery.of(context).size.height * 0.75,
         ),
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
@@ -147,127 +146,140 @@ class _HistoryDetailDialogState extends State<HistoryDetailDialog> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                height: 200,
-                decoration: BoxDecoration(
-                  color: cs.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: cs.outlineVariant),
-                ),
-                child: widget.item.imagePath != null && File(widget.item.imagePath!).existsSync()
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.file(
-                          File(widget.item.imagePath!),
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : Icon(
-                        Icons.search,
-                        size: 48,
-                        color: cs.outlineVariant,
-                      ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: _statusColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    widget.item.resultType,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: _statusColor,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: _containerColor,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(
-                        color: _statusColor.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Text(
-                      '${widget.item.confidence.toStringAsFixed(1)}%',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: _statusColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                dateStr,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: cs.onSurfaceVariant,
-                ),
-              ),
-              if (widget.item.inferenceTimeMs > 0)
-                Text(
-                  'Inference time: ${widget.item.inferenceTimeMs} ms',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
-                ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.info,
-                      size: 20,
-                      color: cs.onSurfaceVariant,
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: cs.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: cs.outlineVariant),
+                      ),
+                      child: widget.item.imagePath != null && File(widget.item.imagePath!).existsSync()
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.file(
+                                File(widget.item.imagePath!),
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Icon(
+                              Icons.search,
+                              size: 48,
+                              color: cs.outlineVariant,
+                            ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _description,
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: _statusColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          widget.item.resultType,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: _statusColor,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _containerColor,
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: _statusColor.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Text(
+                            '${widget.item.confidence.toStringAsFixed(1)}%',
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: _statusColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      dateStr,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    if (widget.item.inferenceTimeMs > 0)
+                      Text(
+                        'Inference time: ${widget.item.inferenceTimeMs} ms',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: cs.onSurfaceVariant,
                         ),
                       ),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.info,
+                            size: 20,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _description,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Confidence Scores',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _ConfidenceBar(label: 'Glioma', score: widget.item.gliomaScore, color: const Color(0xFF4EDEA3)),
+                    const SizedBox(height: 12),
+                    _ConfidenceBar(label: 'Meningioma', score: widget.item.meningiomaScore, color: const Color(0xFF2563EB)),
+                    const SizedBox(height: 12),
+                    _ConfidenceBar(label: 'Pituitary Tumor', score: widget.item.pituitaryScore, color: const Color(0xFF7D4CE7)),
+                    const SizedBox(height: 12),
+                    _ConfidenceBar(label: 'No Tumor', score: widget.item.noTumorScore, color: const Color(0xFF8D90A0)),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-              Text(
-                'Confidence Scores',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: cs.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _ConfidenceBar(label: 'Glioma', score: widget.item.gliomaScore, color: const Color(0xFF4EDEA3)),
-              const SizedBox(height: 12),
-              _ConfidenceBar(label: 'Meningioma', score: widget.item.meningiomaScore, color: const Color(0xFF2563EB)),
-              const SizedBox(height: 12),
-              _ConfidenceBar(label: 'Pituitary Tumor', score: widget.item.pituitaryScore, color: const Color(0xFF7D4CE7)),
-              const SizedBox(height: 12),
-              _ConfidenceBar(label: 'No Tumor', score: widget.item.noTumorScore, color: const Color(0xFF8D90A0)),
-              const SizedBox(height: 24),
-              Row(
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+              child: Row(
                 children: [
                   Expanded(
                     child: SizedBox(
@@ -304,8 +316,8 @@ class _HistoryDetailDialogState extends State<HistoryDetailDialog> {
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
