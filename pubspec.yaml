@@ -45,5 +45,8 @@ flutter:
   assets:
     - assets/models/brain_tumor_model.tflite
     - assets/models/labels.txt
+    - assets/images/app_icon.png
+    - assets/images/img_splash.png
+    - assets/images/welcome.png
 
   uses-material-design: true
