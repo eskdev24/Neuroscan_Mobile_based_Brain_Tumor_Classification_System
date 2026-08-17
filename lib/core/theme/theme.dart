@@ -1,0 +1,27 @@
+import 'package:flutter/material.dart';
+import 'color.dart' as c;
+import 'typography.dart';
+
+final appTheme = ThemeData(
+  brightness: Brightness.dark,
+  useMaterial3: true,
+  colorScheme: const ColorScheme.dark(
+    primary: c.primary,
+    primaryContainer: c.primaryContainer,
+    onPrimaryContainer: c.onPrimaryContainer,
+    secondaryContainer: c.secondaryContainer,
+    onSecondaryContainer: c.onSecondaryContainer,
+    tertiaryContainer: c.tertiaryContainer,
+    onTertiaryContainer: c.onTertiaryContainer,
+    background: c.background,
+    surface: c.surface,
+    surfaceContainerHighest: c.surfaceVariant,
+    onBackground: c.onSurface,
+    onSurface: c.onSurface,
+    onSurfaceVariant: c.onSurfaceVariant,
+    outline: c.outline,
+    outlineVariant: c.outlineVariant,
+    surfaceContainerHigh: c.surfaceContainerHigh,
+  ),
+  typography: appTypography,
+);
