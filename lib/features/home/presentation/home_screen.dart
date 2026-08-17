@@ -63,6 +63,18 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const SizedBox(height: 24),
           Text(_greeting, style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: cs.onSurface)),
+          if (_userEmail.isNotEmpty) ...[
+            Text(_userEmail, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: cs.primaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(_userRole, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: cs.primary)),
+            ),
+          ],
           Text(dateStr, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
           const SizedBox(height: 32),
           _ActionCard(
