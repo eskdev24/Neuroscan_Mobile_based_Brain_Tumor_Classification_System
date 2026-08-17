@@ -6,8 +6,24 @@ import 'app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FirebaseInit.initialize();
-  await NotificationService.initialize();
-  NotificationService.requestPermission();
+
+  try {
+    await FirebaseInit.initialize();
+  } catch (e) {
+    debugPrint('Firebase init failed: $e');
+  }
+
+  try {
+    await NotificationService.initialize();
+  } catch (e) {
+    debugPrint('Notification init failed: $e');
+  }
+
+  try {
+    await NotificationService.requestPermission();
+  } catch (e) {
+    debugPrint('Notification permission failed: $e');
+  }
+
   runApp(const ProviderScope(child: NeuroscanApp()));
 }
