@@ -1,4 +1,4 @@
-package com.bratsml.neuroscan_ai
+package com.bratsml.neuroscan
 
 import io.flutter.embedding.android.FlutterActivity
 
