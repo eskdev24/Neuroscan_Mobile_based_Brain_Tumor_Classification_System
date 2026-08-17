@@ -61,7 +61,7 @@ class _NeuroscanAppState extends ConsumerState<NeuroscanApp> {
         ),
         GoRoute(
           path: '/${Routes.about}',
-          builder: (_, __) => const _ScaffoldWithNav(body: AboutScreen()),
+          builder: (_, __) => const _ScaffoldWithBody(body: AboutScreen()),
         ),
         GoRoute(
           path: '/${Routes.notifications}',
@@ -150,6 +150,10 @@ class _ScaffoldWithBody extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
         title: Text(_getTitle(GoRouterState.of(context).uri.path)),
       ),
       body: body,
@@ -160,6 +164,7 @@ class _ScaffoldWithBody extends StatelessWidget {
     if (path.contains(Routes.scan)) return 'Scan';
     if (path.contains(Routes.results)) return 'Results';
     if (path.contains(Routes.notifications)) return 'Notifications';
+    if (path.contains(Routes.about)) return 'About';
     return '';
   }
 }
