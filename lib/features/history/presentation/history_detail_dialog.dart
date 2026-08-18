@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../shared/models/scan_item.dart';
 import '../../../core/pdf/pdf_generator.dart';
+import '../../../core/notifications/notification_service.dart';
 
 class HistoryDetailDialog extends StatefulWidget {
   final ScanItem item;
@@ -66,20 +68,35 @@ class _HistoryDetailDialogState extends State<HistoryDetailDialog> {
       if (widget.item.imagePath != null && File(widget.item.imagePath!).existsSync()) {
         imageBytes = await File(widget.item.imagePath!).readAsBytes();
       }
-      final pdfBytes = await PdfGenerator.generate(widget.item, imageBytes);
+      
+      // Load logo
+      final logoData = await rootBundle.load('assets/images/app_icon.png');
+      final logoBytes = logoData.buffer.asUint8List();
+      
+      final pdfBytes = await PdfGenerator.generate(widget.item, imageBytes, logoBytes: logoBytes);
       final tempDir = await getTemporaryDirectory();
       final file = File('${tempDir.path}/neuroscan_report_${widget.item.timestamp}.pdf');
       await file.writeAsBytes(pdfBytes);
+      
+      if (mounted) {
+        widget.onDismiss();
+      }
+      
       await Share.shareXFiles(
         [XFile(file.path)],
         text: 'NEUROSCAN AI Report',
       );
+      
+      NotificationService.showNotification(
+        'Report Shared',
+        'Neuroscan AI report has been shared successfully.',
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to share: $e')),
-        );
-      }
+      print('[SharePdf] Error: $e');
+      NotificationService.showNotification(
+        'Share Failed',
+        'Could not share the report: $e',
+      );
     } finally {
       if (mounted) setState(() => _isGeneratingPdf = false);
     }
@@ -92,21 +109,40 @@ class _HistoryDetailDialogState extends State<HistoryDetailDialog> {
       if (widget.item.imagePath != null && File(widget.item.imagePath!).existsSync()) {
         imageBytes = await File(widget.item.imagePath!).readAsBytes();
       }
-      final pdfBytes = await PdfGenerator.generate(widget.item, imageBytes);
-      final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/neuroscan_report_${widget.item.timestamp}.pdf');
+      
+      // Load logo
+      final logoData = await rootBundle.load('assets/images/app_icon.png');
+      final logoBytes = logoData.buffer.asUint8List();
+      
+      print('[DownloadPdf] Generating PDF...');
+      final pdfBytes = await PdfGenerator.generate(widget.item, imageBytes, logoBytes: logoBytes);
+      print('[DownloadPdf] PDF generated, size: ${pdfBytes.length} bytes');
+      
+      final fileName = 'neuroscan_report_${widget.item.timestamp}.pdf';
+      final downloadsPath = '/storage/emulated/0/Download';
+      
+      final file = File('$downloadsPath/$fileName');
       await file.writeAsBytes(pdfBytes);
+      
+      final fileExists = await file.exists();
+      final fileSize = await file.length();
+      print('[DownloadPdf] File saved to: $downloadsPath/$fileName, exists: $fileExists, size: $fileSize bytes');
+      
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Saved to ${file.path}')),
-        );
+        widget.onDismiss();
       }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save: $e')),
-        );
-      }
+      
+      NotificationService.showNotification(
+        'Report Downloaded',
+        'PDF saved to Downloads folder: $fileName',
+      );
+    } catch (e, st) {
+      print('[DownloadPdf] Error: $e');
+      print('[DownloadPdf] Stack trace: $st');
+      NotificationService.showNotification(
+        'Download Failed',
+        'Could not generate report: $e',
+      );
     } finally {
       if (mounted) setState(() => _isGeneratingPdf = false);
     }

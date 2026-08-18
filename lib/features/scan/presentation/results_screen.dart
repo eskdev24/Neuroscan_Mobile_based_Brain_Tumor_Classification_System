@@ -306,6 +306,7 @@ class _ConfidenceBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
           ),
           child: FractionallySizedBox(
+            alignment: Alignment.centerLeft,
             widthFactor: (score / 100).clamp(0.0, 1.0),
             child: Container(
               decoration: BoxDecoration(

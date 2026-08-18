@@ -27,23 +27,39 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   }
 
   void _showImageSourceSheet() {
+    final cs = Theme.of(context).colorScheme;
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: cs.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) {
-        final cs = Theme.of(context).colorScheme;
+        final bottomPadding = MediaQuery.of(context).viewInsets.bottom + MediaQuery.of(context).padding.bottom;
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          width: double.infinity,
+          padding: EdgeInsets.fromLTRB(24, 12, 24, 24 + bottomPadding),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: cs.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
               Text(
                 'Select MRI Scan Input',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: cs.onSurface,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -52,11 +68,14 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                     Navigator.pop(context);
                     _pickImage(ImageSource.camera);
                   },
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Take Photo', style: TextStyle(fontWeight: FontWeight.w600)),
+                  icon: const Icon(Icons.camera_alt, size: 22),
+                  label: const Text(
+                    'Take Photo (Camera)',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: cs.primary,
-                    foregroundColor: cs.onPrimary,
+                    backgroundColor: const Color(0xFF6C63FF),
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
@@ -70,13 +89,13 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
                     Navigator.pop(context);
                     _pickImage(ImageSource.gallery);
                   },
-                  icon: Icon(Icons.photo_library, color: cs.primary),
+                  icon: Icon(Icons.photo_library, size: 22, color: cs.onSurface),
                   label: Text(
                     'Choose from Gallery',
-                    style: TextStyle(fontWeight: FontWeight.w600, color: cs.primary),
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: cs.onSurface),
                   ),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: cs.outlineVariant),
+                    side: BorderSide(color: cs.outlineVariant, width: 1.5),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),

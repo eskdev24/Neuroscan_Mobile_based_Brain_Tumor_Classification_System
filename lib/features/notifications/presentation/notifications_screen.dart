@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/routing/routes.dart';
 import '../../../shared/models/notification_item.dart';
 import '../application/notifications_controller.dart';
 
@@ -10,66 +12,101 @@ class NotificationsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifications = ref.watch(notificationsProvider);
-
-    if (notifications.isEmpty) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.notifications_off,
-                  size: 80,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'No Notifications',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  "You're all caught up! New alerts on tumor classification and database syncing will appear here.",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
+    final controller = ref.read(notificationsProvider.notifier);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        itemCount: notifications.length + 1,
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8, left: 4),
-              child: Text(
-                'REACTIVE FEEDBACK ALERTS',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-              ),
-            );
-          }
-          final notification = notifications[index - 1];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: _NotificationRow(notification: notification),
-          );
-        },
+      appBar: AppBar(
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/${Routes.home}'),
+        ),
+        title: const Text('Notifications'),
+        actions: notifications.isNotEmpty
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.delete_sweep),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Clear All Notifications?'),
+                        content: const Text('This will permanently delete all notifications.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              controller.clearAll();
+                              Navigator.of(ctx).pop();
+                            },
+                            child: const Text('Clear All'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  tooltip: 'Clear All',
+                ),
+              ]
+            : null,
       ),
+      body: notifications.isEmpty
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.notifications_off,
+                      size: 80,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'No Notifications',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      "You're all caught up! New alerts on tumor classification and database syncing will appear here.",
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              itemCount: notifications.length,
+              itemBuilder: (context, index) {
+                final notification = notifications[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Dismissible(
+                    key: ValueKey(notification.id),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (_) => controller.removeNotification(notification.id),
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(right: 20),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.errorContainer,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(Icons.delete, color: Theme.of(context).colorScheme.onErrorContainer),
+                    ),
+                    child: _NotificationRow(notification: notification),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

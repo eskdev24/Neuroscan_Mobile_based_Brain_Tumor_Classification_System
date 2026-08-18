@@ -9,7 +9,6 @@ final notificationsProvider = NotifierProvider<NotificationsController, List<Not
 class NotificationsController extends Notifier<List<NotificationItem>> {
   @override
   List<NotificationItem> build() {
-    // Wire up NotificationService to feed this in-memory list
     NotificationService.onNotificationAdded = (title, message) {
       addNotification(title, message);
     };
@@ -26,6 +25,14 @@ class NotificationsController extends Notifier<List<NotificationItem>> {
       ),
       ...state,
     ];
+  }
+
+  void clearAll() {
+    state = [];
+  }
+
+  void removeNotification(String id) {
+    state = state.where((n) => n.id != id).toList();
   }
 
   int get unreadCount => state.length;

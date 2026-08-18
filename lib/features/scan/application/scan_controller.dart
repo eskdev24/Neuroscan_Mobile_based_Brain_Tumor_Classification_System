@@ -65,7 +65,7 @@ class ScanController extends Notifier<AsyncValue<PredictionResult?>> {
           primaryType = entry.key;
         }
       }
-      final confidencePercent = (maxConfidence * 100).toStringAsFixed(1);
+      final confidencePercent = maxConfidence.toStringAsFixed(1);
       state = AsyncValue.data(PredictionResult(
         type: primaryType,
         confidence: maxConfidence,

@@ -74,7 +74,7 @@ class _NeuroscanAppState extends ConsumerState<NeuroscanApp> {
         ),
         GoRoute(
           path: '/${Routes.notifications}',
-          builder: (_, __) => const _ScaffoldWithBody(body: NotificationsScreen()),
+          builder: (_, __) => const NotificationsScreen(),
         ),
         GoRoute(
           path: '/${Routes.profile}',
