@@ -69,8 +69,8 @@ By leveraging a quantized **TensorFlow Lite (TFLite)** neural network directly o
   [TFLite Interpreter Execution] (assets/brain_tumor_model.tflite)
          │
          ▼
-  [Post-Processing & Softmax Normalization]
-  ├── Output Tensor: [1, 4] logits / probabilities
+  [Post-Processing & Confidence Extraction]
+  ├── Output Tensor: [1, 4] probabilities (0.0–1.0, no softmax needed)
   └── Confidence Scores: Glioma %, Meningioma %, Pituitary %, No Tumor %
          │
          ▼
@@ -116,19 +116,22 @@ By leveraging a quantized **TensorFlow Lite (TFLite)** neural network directly o
 
 ## 💻 Technology Stack
 
-| Domain | Technology / Package | Purpose |
-| :--- | :--- | :--- |
-| **Framework** | [Flutter](https://flutter.dev) (SDK >= 3.4.0) | Cross-platform UI toolkit |
-| **Language** | [Dart](https://dart.dev) (3.4+) | Strongly-typed object-oriented language |
-| **Deep Learning** | `tflite_flutter` (0.11.0) | On-device TFLite model execution |
-| **Computer Vision** | `image` (4.5.3) | MRI scan resizing and pixel tensor extraction |
-| **Authentication** | `firebase_auth` (5.3.3) | Secure email/password auth & verification |
-| **Cloud Database** | `firebase_database` (11.3.0) | Realtime database for multi-device sync |
-| **Local Storage** | `sqflite` (2.4.1) & `path` | Local relational SQLite database |
-| **State Management**| `provider` (6.1.2) | Reactive state management architecture |
-| **Report Engine** | `pdf` (3.11.1) & `printing` | Medical-grade PDF rendering and layout |
-| **System Sharing** | `share_plus` (10.1.4) | Native OS share sheet integration |
-| **Notifications** | `flutter_local_notifications` (18.0.1) | Local scheduling and status alerts |
+| Domain | Technology / Package | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Framework** | [Flutter](https://flutter.dev) | `3.44.6` | Cross-platform UI toolkit |
+| **Language** | [Dart](https://dart.dev) | `3.12.2` | Strongly-typed object-oriented language |
+| **State Management** | [Riverpod](https://pub.dev/packages/flutter_riverpod) | `2.6.1` | Reactive state management (code generation) |
+| **Navigation** | [GoRouter](https://pub.dev/packages/go_router) | `14.8.1` | Declarative routing with deep link support |
+| **Deep Learning** | [tflite_flutter](https://pub.dev/packages/tflite_flutter) | `0.12.1` | On-device TFLite model execution |
+| **Authentication** | [firebase_auth](https://pub.dev/packages/firebase_auth) | `5.5.1` | Secure email/password auth & verification |
+| **Cloud Database** | [firebase_database](https://pub.dev/packages/firebase_database) | `11.3.4` | Realtime database for multi-device sync |
+| **Push Notifications** | [firebase_messaging](https://pub.dev/packages/firebase_messaging) | `15.2.1` | Firebase Cloud Messaging (FCM) |
+| **Local Storage** | [sqflite](https://pub.dev/packages/sqflite) | `2.4.2` | Local relational SQLite database |
+| **Report Engine** | [pdf](https://pub.dev/packages/pdf) | `3.11.2` | Medical-grade PDF rendering and layout |
+| **System Sharing** | [share_plus](https://pub.dev/packages/share_plus) | `10.1.4` | Native OS share sheet integration |
+| **Notifications** | [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) | `18.0.1` | Local scheduling and status alerts |
+| **Permissions** | [permission_handler](https://pub.dev/packages/permission_handler) | `11.4.0` | Runtime permission management |
+| **Code Generation** | [freezed](https://pub.dev/packages/freezed) + [build_runner](https://pub.dev/packages/build_runner) | `2.5.8` / `2.4.14` | Immutable data classes & JSON serialization |
 
 ---
 
@@ -136,43 +139,92 @@ By leveraging a quantized **TensorFlow Lite (TFLite)** neural network directly o
 
 ```
 neuroscan_ai/
+├── android/                          # Android platform project
+│   └── app/src/main/
+│       ├── AndroidManifest.xml       # Permissions, FCM, notification config
+│       └── res/                      # Icons, splash, notification drawables
 ├── assets/
-│   ├── brain_tumor_model.tflite    # Pre-trained quantized neural network
-│   ├── labels.txt                  # Output class mapping
-│   ├── img_mri_scan.png            # Demonstration MRI asset
-│   └── img_splash.png              # App branding asset
+│   ├── images/
+│   │   ├── app_icon.png              # Custom adaptive app icon
+│   │   ├── img_splash.png            # Splash/branding brain logo
+│   │   └── welcome.png               # Welcome screen hero image
+│   └── models/
+│       ├── brain_tumor_model.tflite  # Pre-trained quantized neural network
+│       └── labels.txt                # Output class mapping (4 labels)
 ├── lib/
-│   ├── firebase_options.dart       # Firebase platform configuration
-│   ├── main.dart                   # Application entry point & navigation shell
-│   ├── models/
-│   │   ├── prediction_result.dart  # Diagnostic output & notification models
-│   │   └── scan_item.dart          # Scan history entity (SQLite/RTDB schema)
-│   ├── providers/
-│   │   └── app_state.dart          # Core application state & synchronization
-│   ├── screens/
-│   │   ├── about_screen.dart       # Project information, model details, ethics
-│   │   ├── auth_screen.dart        # Login, registration, practitioner details
-│   │   ├── history_screen.dart     # Searchable scan history & PDF export
-│   │   ├── home_screen.dart        # Dashboard, statistics, quick actions
-│   │   ├── notifications_screen.dart# System & sync notification logs
-│   │   ├── profile_screen.dart     # Practitioner profile & credentials
-│   │   ├── results_screen.dart     # Diagnostic results & confidence bars
-│   │   ├── scan_screen.dart        # Camera/Gallery MRI acquisition
-│   │   ├── splash_screen.dart      # Animated startup & auth routing
-│   │   └── welcome_screen.dart     # Interactive introduction & onboarding
-│   ├── services/
-│   │   ├── auth_service.dart       # Firebase Authentication interface
-│   │   ├── database_service.dart   # SQLite CRUD operations
-│   │   ├── notification_service.dart# Local push notifications
-│   │   ├── pdf_service.dart        # Vector PDF clinical report compiler
-│   │   └── tflite_service.dart     # Tensor normalization & model inference
-│   ├── theme/
-│   │   └── app_theme.dart          # Dark clinical color palette & tokens
-│   └── widgets/
-│       └── confidence_bar.dart     # Custom animated diagnostic meter
-├── test/
-│   └── widget_test.dart            # Unit and widget test suite
-└── pubspec.yaml                    # Project dependencies and asset manifests
+│   ├── main.dart                     # Entry point, Riverpod, Firebase init
+│   ├── app.dart                      # GoRouter config, ScaffoldWithBody, BottomNav
+│   ├── core/
+│   │   ├── firebase/
+│   │   │   └── firebase_init.dart    # Firebase initialization
+│   │   ├── notifications/
+│   │   │   └── notification_service.dart # Local + FCM notifications
+│   │   ├── pdf/
+│   │   │   └── pdf_generator.dart    # Medical-grade PDF report generator
+│   │   ├── routing/
+│   │   │   ├── app_router.dart       # GoRouter route configuration
+│   │   │   └── routes.dart           # Route name constants
+│   │   └── theme/
+│   │       ├── color.dart            # App color constants
+│   │       ├── theme.dart            # Dark clinical theme
+│   │       └── typography.dart       # Text styles & type scale
+│   ├── features/
+│   │   ├── about/presentation/
+│   │   │   └── about_screen.dart     # Project info & model details
+│   │   ├── auth/
+│   │   │   ├── application/
+│   │   │   │   ├── auth_controller.dart  # Auth state management (Riverpod)
+│   │   │   │   └── auth_state.dart       # Auth state sealed class
+│   │   │   ├── data/
+│   │   │   │   └── auth_repository.dart  # Firebase Auth wrapper
+│   │   │   └── presentation/
+│   │   │       └── auth_screen.dart      # Login, register, password reset
+│   │   ├── history/
+│   │   │   ├── application/
+│   │   │   │   └── history_controller.dart  # History state (Riverpod)
+│   │   │   └── presentation/
+│   │   │       ├── history_detail_dialog.dart # Detail view + PDF download
+│   │   │       ├── history_item_card.dart     # Scan list item card
+│   │   │       └── history_screen.dart        # Searchable scan history
+│   │   ├── home/presentation/
+│   │   │   └── home_screen.dart      # Dashboard with quick actions
+│   │   ├── notifications/
+│   │   │   ├── application/
+│   │   │   │   └── notifications_controller.dart # Notification state
+│   │   │   └── presentation/
+│   │   │       └── notifications_screen.dart    # Notification list + clear
+│   │   ├── profile/
+│   │   │   ├── application/
+│   │   │   │   └── profile_controller.dart  # Profile state (Riverpod)
+│   │   │   └── presentation/
+│   │   │       └── profile_screen.dart      # Practitioner profile
+│   │   ├── scan/
+│   │   │   ├── application/
+│   │   │   │   └── scan_controller.dart     # Scan state (Riverpod)
+│   │   │   ├── data/
+│   │   │   │   ├── scan_local_dao.dart       # SQLite data access
+│   │   │   │   ├── scan_repository.dart      # Scan CRUD operations
+│   │   │   │   └── tflite_classifier.dart    # TFLite inference engine
+│   │   │   └── presentation/
+│   │   │       ├── loading_overlay.dart      # Scan progress overlay
+│   │   │       ├── results_screen.dart       # Diagnostic results + bars
+│   │   │       └── scan_screen.dart          # Camera/Gallery acquisition
+│   │   ├── splash/presentation/
+│   │   │   └── splash_screen.dart    # Animated startup & auth routing
+│   │   └── welcome/presentation/
+│   │       └── welcome_screen.dart   # Onboarding & introduction
+│   └── shared/
+│       ├── models/
+│       │   ├── notification_item.dart  # Notification data model
+│       │   ├── prediction_result.dart  # Diagnostic output model
+│       │   ├── scan_item.dart          # Scan history entity (Freezed)
+│       │   ├── scan_item.freezed.dart  # Freezed generated code
+│       │   └── scan_item.g.dart        # JSON serialization generated
+│       └── widgets/
+│           ├── outlined_action_button.dart # Reusable outlined button
+│           └── primary_button.dart         # Reusable primary button
+├── test/                             # Unit & widget tests
+└── pubspec.yaml                      # Dependencies & asset manifests
 ```
 
 ---
@@ -234,16 +286,19 @@ CREATE TABLE scan_history (
 
 ### Prerequisites
 
-- **Flutter SDK:** Version `3.4.0` or higher ([Install Flutter](https://flutter.dev/docs/get-started/install))
-- **Dart SDK:** Version `3.4.0` or higher
-- **Android Studio / Xcode** for mobile deployment
-- **Java Development Kit (JDK):** Version 17 recommended
+| Requirement | Version |
+| :--- | :--- |
+| **Flutter SDK** | `3.44.6` or higher ([Install Flutter](https://flutter.dev/docs/get-started/install)) |
+| **Dart SDK** | `3.12.2` or higher (bundled with Flutter) |
+| **Android Studio** | Latest stable (for Android toolchain) |
+| **JDK** | 17 (required by AGP 9.0) |
+| **Firebase Project** | With Authentication (Email/Password) and Realtime Database enabled |
 
 ### Installation Steps
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/eskdev24/neuroscan_ai.git
+   git clone https://github.com/eskdev24/Neuroscan-Mobile-based-Brain-Tumor-Classification-System-.git
    cd neuroscan_ai
    ```
 
@@ -252,14 +307,29 @@ CREATE TABLE scan_history (
    flutter pub get
    ```
 
-3. **Verify Flutter environment:**
+3. **Place the TFLite model:**
+   Ensure the trained model is at `assets/models/brain_tumor_model.tflite` and labels at `assets/models/labels.txt`.
+
+4. **Configure Firebase:**
+   - Place your `google-services.json` in `android/app/`
+   - Enable **Email/Password** authentication in Firebase Console
+   - Create a **Realtime Database** instance (Firebase Console → Realtime Database)
+
+5. **Verify Flutter environment:**
    ```bash
    flutter doctor
    ```
 
-4. **Launch the application:**
+6. **Build and run:**
    ```bash
+   # Run on connected device/emulator
    flutter run
+
+   # Build release APK
+   flutter build apk --release
+
+   # Install on connected device
+   flutter install
    ```
 
 ---
