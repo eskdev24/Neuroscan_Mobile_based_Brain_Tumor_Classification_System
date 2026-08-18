@@ -22,6 +22,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _passwordCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
+  final _hospitalCtrl = TextEditingController();
+  final _regionCtrl = TextEditingController();
+  final _countryCtrl = TextEditingController();
   String? _selectedRole;
   bool _obscurePassword = true;
 
@@ -38,6 +41,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     _passwordCtrl.dispose();
     _nameCtrl.dispose();
     _phoneCtrl.dispose();
+    _hospitalCtrl.dispose();
+    _regionCtrl.dispose();
+    _countryCtrl.dispose();
     super.dispose();
   }
 
@@ -66,6 +72,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         name: _nameCtrl.text.trim(),
         role: _selectedRole!,
         phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
+        hospital:
+            _hospitalCtrl.text.trim().isEmpty ? null : _hospitalCtrl.text.trim(),
+        region:
+            _regionCtrl.text.trim().isEmpty ? null : _regionCtrl.text.trim(),
+        country:
+            _countryCtrl.text.trim().isEmpty ? null : _countryCtrl.text.trim(),
       );
     } else {
       await ctrl.signIn(
@@ -108,160 +120,263 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
             child: Form(
               key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.medical_services_rounded,
-                      size: 64, color: cs.primary),
-                  const SizedBox(height: 16),
-                  Text(
-                    'NeuroScan AI',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: cs.primary,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _isSignUp ? 'Create an account' : 'Welcome back',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                  ),
-                  const SizedBox(height: 32),
-                  if (_isSignUp && _signUpStep == 0) ...[
-                    _buildTextField(
-                      controller: _emailCtrl,
-                      label: 'Email',
-                      icon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Email is required';
-                        if (!v.contains('@')) return 'Enter a valid email';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _passwordCtrl,
-                      label: 'Password',
-                      icon: Icons.lock_outlined,
-                      obscure: _obscurePassword,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                        ),
-                        onPressed: () =>
-                            setState(() => _obscurePassword = !_obscurePassword),
-                      ),
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Password is required';
-                        if (v.length < 6) return 'At least 6 characters';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedRole,
-                      decoration: InputDecoration(
-                        labelText: 'Role',
-                        prefixIcon: const Icon(Icons.work_outline),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: cs.surface,
-                      ),
-                      items: _roles
-                          .map((r) => DropdownMenuItem(value: r, child: Text(r)))
-                          .toList(),
-                      onChanged: (v) => setState(() => _selectedRole = v),
-                      validator: (v) => v == null ? 'Select a role' : null,
-                    ),
-                  ] else if (_isSignUp && _signUpStep == 1) ...[
-                    _buildTextField(
-                      controller: _nameCtrl,
-                      label: 'Full Name',
-                      icon: Icons.person_outline,
-                      validator: (v) =>
-                          v == null || v.isEmpty ? 'Name is required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _phoneCtrl,
-                      label: 'Phone (optional)',
-                      icon: Icons.phone_outlined,
-                      keyboardType: TextInputType.phone,
-                    ),
-                  ] else ...[
-                    _buildTextField(
-                      controller: _emailCtrl,
-                      label: 'Email',
-                      icon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Email is required';
-                        if (!v.contains('@')) return 'Enter a valid email';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _passwordCtrl,
-                      label: 'Password',
-                      icon: Icons.lock_outlined,
-                      obscure: _obscurePassword,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                        ),
-                        onPressed: () =>
-                            setState(() => _obscurePassword = !_obscurePassword),
-                      ),
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Password is required';
-                        return null;
-                      },
-                    ),
-                  ],
-                  const SizedBox(height: 24),
-                  PrimaryButton(
-                    label: _isSignUp
-                        ? (_signUpStep == 0 ? 'Next' : 'Sign Up')
-                        : 'Sign In',
-                    isLoading: authState is AuthLoading,
-                    onPressed: _submit,
-                  ),
-                  const SizedBox(height: 16),
-                  if (!_isSignUp)
-                    TextButton(
-                      onPressed: () {
-                        if (_emailCtrl.text.isNotEmpty) {
-                          ref
-                              .read(authControllerProvider.notifier)
-                              .resetPassword(_emailCtrl.text.trim());
-                        }
-                      },
-                      child: const Text('Forgot password?'),
-                    ),
-                  TextButton(
-                    onPressed: _toggleMode,
-                    child: Text(
-                      _isSignUp
-                          ? 'Already have an account? Sign in'
-                          : "Don't have an account? Sign up",
-                    ),
-                  ),
-                ],
-              ),
+              child: _isSignUp ? _buildSignUpBody(authState) : _buildSignInBody(authState),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHeader({
+    required String title,
+    required String subtitle,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        Image.asset(
+          'assets/images/img_splash.png',
+          height: 64,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: cs.onSurface,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          subtitle,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: cs.onSurfaceVariant,
+              ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignInBody(AuthState authState) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildHeader(
+          title: 'Welcome Back',
+          subtitle: 'Sign in to continue to Neuroscan',
+        ),
+        const SizedBox(height: 32),
+        _buildTextField(
+          controller: _emailCtrl,
+          label: 'Email',
+          icon: Icons.email_outlined,
+          keyboardType: TextInputType.emailAddress,
+          validator: (v) {
+            if (v == null || v.isEmpty) return 'Email is required';
+            if (!v.contains('@')) return 'Enter a valid email';
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
+        _buildTextField(
+          controller: _passwordCtrl,
+          label: 'Password',
+          icon: Icons.lock_outlined,
+          obscure: _obscurePassword,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscurePassword
+                  ? Icons.visibility_off_outlined
+                  : Icons.visibility_outlined,
+            ),
+            onPressed: () =>
+                setState(() => _obscurePassword = !_obscurePassword),
+          ),
+          validator: (v) {
+            if (v == null || v.isEmpty) return 'Password is required';
+            if (v.length < 6) return 'At least 6 characters';
+            return null;
+          },
+        ),
+        const SizedBox(height: 24),
+        PrimaryButton(
+          label: 'Sign In',
+          isLoading: authState is AuthLoading,
+          onPressed: _submit,
+        ),
+        const SizedBox(height: 16),
+        TextButton(
+          onPressed: () {
+            if (_emailCtrl.text.isNotEmpty) {
+              ref
+                  .read(authControllerProvider.notifier)
+                  .resetPassword(_emailCtrl.text.trim());
+            }
+          },
+          child: const Text('Forgot password?'),
+        ),
+        TextButton(
+          onPressed: _toggleMode,
+          child: const Text("Don't have an account? Sign Up"),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignUpBody(AuthState authState) {
+    final cs = Theme.of(context).colorScheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_signUpStep == 0) ...[
+          _buildHeader(
+            title: 'Create Account',
+            subtitle: 'Step 1 of 2: Set credentials',
+          ),
+          const SizedBox(height: 32),
+          _buildTextField(
+            controller: _emailCtrl,
+            label: 'Email',
+            icon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'Email is required';
+              if (!v.contains('@')) return 'Enter a valid email';
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            controller: _passwordCtrl,
+            label: 'Password',
+            icon: Icons.lock_outlined,
+            obscure: _obscurePassword,
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+              ),
+              onPressed: () =>
+                  setState(() => _obscurePassword = !_obscurePassword),
+            ),
+            validator: (v) {
+              if (v == null || v.isEmpty) return 'Password is required';
+              if (v.length < 6) return 'At least 6 characters';
+              return null;
+            },
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            value: _selectedRole ?? _roles.first,
+            decoration: InputDecoration(
+              labelText: 'Role',
+              labelStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                textBaseline: TextBaseline.alphabetic,
+              ),
+              prefixIcon: Icon(Icons.work_outline,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide:
+                    BorderSide(color: Theme.of(context).colorScheme.outline),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary, width: 2),
+              ),
+              filled: true,
+              fillColor: Theme.of(context).colorScheme.surface,
+            ),
+            items: _roles
+                .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                .toList(),
+            onChanged: (v) => setState(() => _selectedRole = v),
+            validator: (v) => v == null ? 'Select a role' : null,
+          ),
+          const SizedBox(height: 24),
+          PrimaryButton(
+            label: 'Continue to Step 2',
+            isLoading: authState is AuthLoading,
+            onPressed: _submit,
+          ),
+        ] else ...[
+          _buildHeader(
+            title: 'Additional Info',
+            subtitle: 'Step 2 of 2: Profile details',
+          ),
+          const SizedBox(height: 32),
+          _buildTextField(
+            controller: _nameCtrl,
+            label: 'Full Name',
+            icon: Icons.person_outline,
+            validator: (v) =>
+                v == null || v.isEmpty ? 'Name is required' : null,
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            controller: _hospitalCtrl,
+            label: 'Hospital',
+            icon: Icons.local_hospital_outlined,
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            controller: _phoneCtrl,
+            label: 'Phone Number',
+            icon: Icons.phone_outlined,
+            keyboardType: TextInputType.phone,
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            controller: _regionCtrl,
+            label: 'Region',
+            icon: Icons.location_on_outlined,
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            controller: _countryCtrl,
+            label: 'Country',
+            icon: Icons.public_outlined,
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => setState(() => _signUpStep = 0),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    side: BorderSide(color: cs.outline),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                  ),
+                  child: Text(
+                    'Back',
+                    style: TextStyle(color: cs.onSurface),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: PrimaryButton(
+                  label: 'Sign Up',
+                  isLoading: authState is AuthLoading,
+                  onPressed: _submit,
+                ),
+              ),
+            ],
+          ),
+        ],
+        const SizedBox(height: 16),
+        TextButton(
+          onPressed: _toggleMode,
+          child: const Text('Already have an account? Sign In'),
+        ),
+      ],
     );
   }
 
@@ -274,18 +389,28 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     String? Function(String?)? validator,
     Widget? suffixIcon,
   }) {
+    final cs = Theme.of(context).colorScheme;
     return TextFormField(
       controller: controller,
       obscureText: obscure,
       keyboardType: keyboardType,
       validator: validator,
+      style: TextStyle(color: cs.onSurface),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon),
+        labelStyle: TextStyle(color: cs.onSurfaceVariant, textBaseline: TextBaseline.alphabetic),
+        prefixIcon: Icon(icon, color: cs.onSurfaceVariant),
         suffixIcon: suffixIcon,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: cs.outline),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: cs.primary, width: 2),
+        ),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surface,
+        fillColor: cs.surface,
       ),
     );
   }

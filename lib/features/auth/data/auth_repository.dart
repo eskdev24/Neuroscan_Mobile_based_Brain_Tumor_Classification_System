@@ -46,11 +46,17 @@ class AuthRepository {
     required String name,
     required String role,
     String? phone,
+    String? hospital,
+    String? region,
+    String? country,
   }) async {
     await _db.ref('users/$uid').set({
       'name': name,
       'role': role,
       if (phone != null) 'phone': phone,
+      if (hospital != null) 'hospital': hospital,
+      if (region != null) 'region': region,
+      if (country != null) 'country': country,
       'email': _auth.currentUser?.email,
       'createdAt': ServerValue.timestamp,
     });

@@ -51,6 +51,9 @@ class AuthController extends Notifier<AuthState> {
     required String name,
     required String role,
     String? phone,
+    String? hospital,
+    String? region,
+    String? country,
   }) async {
     state = const AuthLoading();
     try {
@@ -63,6 +66,9 @@ class AuthController extends Notifier<AuthState> {
         name: name,
         role: role,
         phone: phone,
+        hospital: hospital,
+        region: region,
+        country: country,
       );
       await _repo.sendEmailVerification();
       state = const AuthSignUpSuccess();
