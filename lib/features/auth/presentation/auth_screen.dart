@@ -269,7 +269,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
-            value: _selectedRole ?? _roles.first,
+            isExpanded: true,
+            initialValue: _selectedRole ?? _roles.first,
             decoration: InputDecoration(
               labelText: 'Role',
               labelStyle: TextStyle(
