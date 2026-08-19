@@ -88,7 +88,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 height: 56,
                 child: OutlinedButton.icon(
                   onPressed: () async {
-                    await FirebaseAuth.instance.signOut();
+                    await ref.read(profileProvider.notifier).signOut();
                     if (context.mounted) context.go('/${Routes.welcome}');
                   },
                   icon: const Icon(Icons.logout, color: Color(0xFFE57373)),

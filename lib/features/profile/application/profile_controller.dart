@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import '../../scan/data/scan_local_dao.dart';
 
 class UserProfile {
   final String email, role, fullName, hospital, phone, region, country;
@@ -37,6 +38,7 @@ class ProfileController extends AsyncNotifier<UserProfile> {
   }
 
   Future<void> signOut() async {
+    await ScanLocalDao().close();
     await FirebaseAuth.instance.signOut();
     state = const AsyncValue.data(UserProfile(email: '', role: '', fullName: '', hospital: '', phone: '', region: '', country: ''));
   }

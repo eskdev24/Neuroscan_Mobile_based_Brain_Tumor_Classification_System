@@ -1,12 +1,22 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../../shared/models/scan_item.dart';
 
 class ScanLocalDao {
   Database? _db;
+  String? _currentUid;
+
+  String get _dbName {
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
+    return 'neuroscan_$uid';
+  }
 
   Future<Database> get database async {
-    _db ??= await openDatabase(
-      'neuroscan_database',
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? 'anonymous';
+    if (_db != null && _currentUid == uid) return _db!;
+    _currentUid = uid;
+    _db = await openDatabase(
+      _dbName,
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
@@ -26,6 +36,14 @@ class ScanLocalDao {
       },
     );
     return _db!;
+  }
+
+  Future<void> close() async {
+    if (_db != null) {
+      await _db!.close();
+      _db = null;
+      _currentUid = null;
+    }
   }
 
   Future<int> insertScan(ScanItem scan) async {
