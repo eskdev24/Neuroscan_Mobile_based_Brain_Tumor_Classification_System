@@ -19,7 +19,7 @@ class ProfileController extends AsyncNotifier<UserProfile> {
       return UserProfile(
         email: user.email ?? '',
         role: data?['role'] as String? ?? 'Unknown',
-        fullName: data?['fullName'] as String? ?? '',
+        fullName: data?['name'] as String? ?? '',
         hospital: data?['hospital'] as String? ?? '',
         phone: data?['phone'] as String? ?? '',
         region: data?['region'] as String? ?? '',
