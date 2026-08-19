@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/routing/routes.dart';
+import '../../../shared/widgets/top_snackbar.dart';
 import '../application/profile_controller.dart';
 
 final profileProvider = AsyncNotifierProvider<ProfileController, UserProfile>(
@@ -17,14 +17,13 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  String? _resetPasswordMessage;
-
   @override
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(profileProvider);
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: cs.surface,
       body: profileAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, __) => const Center(child: Text('Error loading profile')),
@@ -34,20 +33,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             children: [
               const SizedBox(height: 32),
               _buildAvatar(profile),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Text(
-                profile.fullName.isNotEmpty ? profile.fullName : profile.email,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                profile.fullName.isNotEmpty ? profile.fullName : 'User',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
               ),
-              if (profile.fullName.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  profile.email,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                ),
-              ],
+              const SizedBox(height: 6),
+              Text(
+                profile.email,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+              ),
               const SizedBox(height: 12),
               _buildRoleBadge(profile.role),
               if (profile.hospital.isNotEmpty ||
@@ -58,31 +58,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 _buildInfoCard(profile),
               ],
               const SizedBox(height: 32),
-              if (_resetPasswordMessage != null) ...[
-                Text(
-                  _resetPasswordMessage!,
-                  style: TextStyle(
-                    color: _resetPasswordMessage!.startsWith('Error')
-                        ? Theme.of(context).colorScheme.error
-                        : const Color(0xFF2962FF),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton.icon(
                   onPressed: _handleResetPassword,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Reset Password', style: TextStyle(fontSize: 16)),
+                  icon: const Icon(Icons.lock_reset, size: 22),
+                  label: const Text('Reset Password', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2962FF),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: cs.primaryContainer,
+                    foregroundColor: cs.onPrimaryContainer,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -91,12 +81,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     await ref.read(profileProvider.notifier).signOut();
                     if (context.mounted) context.go('/${Routes.welcome}');
                   },
-                  icon: const Icon(Icons.logout, color: Color(0xFFE57373)),
-                  label: const Text('Sign Out', style: TextStyle(fontSize: 16)),
+                  icon: const Icon(Icons.logout, size: 22),
+                  label: const Text('Sign Out', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-                    foregroundColor: Theme.of(context).colorScheme.onSurface,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    side: BorderSide(color: cs.outline),
+                    foregroundColor: cs.onSurface,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                 ),
               ),
@@ -120,169 +110,105 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     } else if (profile.email.isNotEmpty) {
       initials = profile.email[0].toUpperCase();
     } else {
-      initials = 'G';
+      initials = 'U';
     }
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        CircleAvatar(
-          radius: 50,
-          backgroundColor: const Color(0xFF2962FF),
-          child: Text(
-            initials,
-            style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
+    return CircleAvatar(
+      radius: 52,
+      backgroundColor: const Color(0xFF3B6BF7),
+      child: Text(
+        initials,
+        style: const TextStyle(
+          fontSize: 40,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
-        Positioned(
-          bottom: -4,
-          right: -4,
-          child: CircleAvatar(
-            radius: 14,
-            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: CircleAvatar(
-              radius: 12,
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              child: Icon(
-                Icons.edit,
-                size: 14,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildRoleBadge(String role) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F3A2B),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF1B5E20)),
+        color: const Color(0xFF2E7D5B),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: const BoxDecoration(
-              color: Color(0xFF00E676),
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            role,
-            style: const TextStyle(
-              color: Color(0xFF00E676),
-              fontSize: 12,
-            ),
-          ),
-        ],
+      child: Text(
+        role,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
 
   Widget _buildInfoCard(UserProfile profile) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            Container(
-              width: 4,
-              decoration: const BoxDecoration(
-                color: Color(0xFF2962FF),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  bottomLeft: Radius.circular(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Additional Information',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: cs.onSurface,
                 ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.info_outline, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Additional Information',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    if (profile.hospital.isNotEmpty) ...[
-                      _buildDetailRow(Icons.business, 'HOSPITAL', profile.hospital),
-                      const SizedBox(height: 16),
-                    ],
-                    if (profile.phone.isNotEmpty) ...[
-                      _buildDetailRow(Icons.phone, 'PHONE', profile.phone),
-                      const SizedBox(height: 16),
-                    ],
-                    if (profile.region.isNotEmpty || profile.country.isNotEmpty)
-                      _buildDetailRow(
-                        Icons.place,
-                        'LOCATION',
-                        [profile.region, profile.country].where((e) => e.isNotEmpty).join(', '),
-                      ),
-                  ],
-                ),
-              ),
-            ),
+          ),
+          const SizedBox(height: 20),
+          if (profile.hospital.isNotEmpty) ...[
+            _buildDetailRow(Icons.local_hospital_outlined, 'Hospital', profile.hospital),
+            const SizedBox(height: 18),
           ],
-        ),
+          if (profile.phone.isNotEmpty) ...[
+            _buildDetailRow(Icons.phone_outlined, 'Phone', profile.phone),
+            const SizedBox(height: 18),
+          ],
+          if (profile.region.isNotEmpty || profile.country.isNotEmpty)
+            _buildDetailRow(
+              Icons.location_on_outlined,
+              'Location',
+              [profile.region, profile.country].where((e) => e.isNotEmpty).join(' , '),
+            ),
+        ],
       ),
     );
   }
 
   Widget _buildDetailRow(IconData icon, String label, String value) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            size: 20,
-            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-          ),
-        ),
+        Icon(icon, size: 22, color: cs.onSurfaceVariant),
         const SizedBox(width: 16),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    letterSpacing: 1,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                  ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: cs.onSurface,
+                    ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -291,9 +217,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _handleResetPassword() async {
     try {
       await ref.read(profileProvider.notifier).resetPassword();
-      setState(() => _resetPasswordMessage = 'Password reset email sent.');
+      if (mounted) showTopSnackBar(context, 'Password reset email sent.');
     } catch (e) {
-      setState(() => _resetPasswordMessage = 'Error sending reset email: $e');
+      if (mounted) showTopSnackBar(context, 'Error: $e', isError: true);
     }
   }
 }
