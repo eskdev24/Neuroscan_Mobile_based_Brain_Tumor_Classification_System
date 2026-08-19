@@ -214,7 +214,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         const SizedBox(height: 16),
         Center(
           child: TextButton(
-            onPressed: _showForgotPasswordDialog,
+            onPressed: () => context.push('/${Routes.forgotPassword}'),
             child: const Text('Forgot password?'),
           ),
         ),
@@ -386,133 +386,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  void _showForgotPasswordDialog() {
-    final ctrl = TextEditingController(text: _emailCtrl.text.trim());
-    final formKey = GlobalKey<FormState>();
-    bool isLoading = false;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
-            final cs = Theme.of(ctx).colorScheme;
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 24,
-                right: 24,
-                top: 24,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-              ),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        margin: const EdgeInsets.only(bottom: 20),
-                        decoration: BoxDecoration(
-                          color: cs.outline,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    Icon(Icons.lock_reset, size: 40, color: cs.primary),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Reset Password',
-                      style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: cs.onSurface,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Enter your email and we\'ll send you a reset link.',
-                      style: TextStyle(color: cs.onSurfaceVariant),
-                    ),
-                    const SizedBox(height: 20),
-                    TextFormField(
-                      controller: ctrl,
-                      keyboardType: TextInputType.emailAddress,
-                      style: TextStyle(color: cs.onSurface),
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        labelStyle: TextStyle(
-                          color: cs.onSurfaceVariant,
-                          textBaseline: TextBaseline.alphabetic,
-                        ),
-                        prefixIcon: Icon(Icons.email_outlined,
-                            color: cs.onSurfaceVariant),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: cs.outline),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              BorderSide(color: cs.primary, width: 2),
-                        ),
-                        filled: true,
-                        fillColor: cs.surface,
-                      ),
-                      validator: (v) {
-                        if (v == null || v.isEmpty) return 'Email is required';
-                        if (!v.contains('@')) return 'Enter a valid email';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: PrimaryButton(
-                        label: 'Send Reset Link',
-                        isLoading: isLoading,
-                        onPressed: () async {
-                          if (!formKey.currentState!.validate()) return;
-                          setSheetState(() => isLoading = true);
-                          try {
-                            await ref
-                                .read(authControllerProvider.notifier)
-                                .resetPassword(ctrl.text.trim());
-                            if (ctx.mounted) Navigator.of(ctx).pop();
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'Password reset link sent! Check your inbox.'),
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            setSheetState(() => isLoading = false);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(e.toString())),
-                              );
-                            }
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 

@@ -6,6 +6,7 @@ import 'core/theme/theme.dart';
 import 'features/splash/presentation/splash_screen.dart';
 import 'features/welcome/presentation/welcome_screen.dart';
 import 'features/auth/presentation/auth_screen.dart';
+import 'features/auth/presentation/forgot_password_screen.dart';
 import 'features/home/presentation/home_screen.dart';
 import 'features/scan/presentation/scan_screen.dart';
 import 'features/scan/presentation/results_screen.dart';
@@ -42,6 +43,10 @@ class _NeuroscanAppState extends ConsumerState<NeuroscanApp> {
         GoRoute(
           path: '/${Routes.auth}',
           builder: (_, __) => const AuthScreen(),
+        ),
+        GoRoute(
+          path: '/${Routes.forgotPassword}',
+          builder: (_, __) => const ForgotPasswordScreen(),
         ),
         GoRoute(
           path: '/${Routes.home}',
