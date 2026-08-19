@@ -167,7 +167,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget _buildSignInBody(AuthState authState) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildHeader(
           title: 'Welcome Back',
@@ -239,7 +238,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final cs = Theme.of(context).colorScheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (_signUpStep == 0) ...[
           _buildHeader(
@@ -280,35 +278,37 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             },
           ),
           const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            isExpanded: true,
-            value: _selectedRole ?? _roles.first,
+          InputDecorator(
             decoration: InputDecoration(
               labelText: 'Role',
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               labelStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: cs.onSurfaceVariant,
                 textBaseline: TextBaseline.alphabetic,
               ),
-              prefixIcon: Icon(Icons.work_outline,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              prefixIcon: Icon(Icons.work_outline, color: cs.onSurfaceVariant),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    BorderSide(color: Theme.of(context).colorScheme.outline),
+                borderSide: BorderSide(color: cs.outline),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary, width: 2),
+                borderSide: BorderSide(color: cs.primary, width: 2),
               ),
               filled: true,
-              fillColor: Theme.of(context).colorScheme.surface,
+              fillColor: cs.surface,
             ),
-            items: _roles
-                .map((r) => DropdownMenuItem(value: r, child: Text(r)))
-                .toList(),
-            onChanged: (v) => setState(() => _selectedRole = v),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isExpanded: true,
+                value: _selectedRole ?? _roles.first,
+                isDense: true,
+                items: _roles
+                    .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                    .toList(),
+                onChanged: (v) => setState(() => _selectedRole = v),
+              ),
+            ),
           ),
           const SizedBox(height: 24),
           PrimaryButton(
