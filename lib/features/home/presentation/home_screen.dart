@@ -64,8 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 16),
           _ActionCard(
             title: 'About', subtitle: 'Learn more about the application',
-            icon: Icons.info, iconBg: cs.secondaryContainer, iconTint: cs.onSecondaryContainer,
-            borderColor: cs.secondaryContainer,
+            icon: Icons.info, iconBg: const Color(0xFF00A572), iconTint: Colors.white,
+            borderColor: const Color(0xFF00A572),
             onTap: () => context.push('/${Routes.about}'),
           ),
           const SizedBox(height: 32),
