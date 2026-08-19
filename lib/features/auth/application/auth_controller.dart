@@ -5,6 +5,7 @@ import '../data/auth_repository.dart';
 import 'auth_state.dart';
 import '../../scan/data/scan_repository.dart';
 import '../../scan/data/scan_local_dao.dart';
+import '../../profile/application/profile_controller.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   try {
@@ -40,6 +41,7 @@ class AuthController extends Notifier<AuthState> {
         return;
       }
       state = const AuthSuccess();
+      ref.invalidate(profileProvider);
       ScanRepository(ScanLocalDao()).syncFromFirebase();
     } on FirebaseAuthException catch (e) {
       state = AuthError(e.message ?? 'Sign in failed');

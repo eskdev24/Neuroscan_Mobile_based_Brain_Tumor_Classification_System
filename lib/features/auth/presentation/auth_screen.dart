@@ -6,6 +6,7 @@ import '../../../shared/widgets/primary_button.dart';
 import '../../../shared/widgets/top_snackbar.dart';
 import '../application/auth_controller.dart';
 import '../application/auth_state.dart';
+import '../../profile/application/profile_controller.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -95,9 +96,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
     ref.listen<AuthState>(authControllerProvider, (prev, next) {
       if (next is AuthSuccess) {
+        ref.invalidate(profileProvider);
         showTopSnackBar(context, 'Welcome back!');
         if (context.mounted) context.go('/${Routes.home}');
       } else if (next is AuthSignUpSuccess) {
+        ref.invalidate(profileProvider);
         showTopSnackBar(context, 'Account created! Please verify your email.');
         setState(() {
           _isSignUp = false;

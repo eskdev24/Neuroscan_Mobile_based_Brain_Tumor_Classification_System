@@ -8,6 +8,10 @@ class UserProfile {
   const UserProfile({required this.email, required this.role, required this.fullName, required this.hospital, required this.phone, required this.region, required this.country});
 }
 
+final profileProvider = AsyncNotifierProvider<ProfileController, UserProfile>(
+  ProfileController.new,
+);
+
 class ProfileController extends AsyncNotifier<UserProfile> {
   @override
   Future<UserProfile> build() async {

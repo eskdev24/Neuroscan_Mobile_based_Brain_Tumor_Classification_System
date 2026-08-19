@@ -5,10 +5,6 @@ import '../../../core/routing/routes.dart';
 import '../../../shared/widgets/top_snackbar.dart';
 import '../application/profile_controller.dart';
 
-final profileProvider = AsyncNotifierProvider<ProfileController, UserProfile>(
-  ProfileController.new,
-);
-
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
