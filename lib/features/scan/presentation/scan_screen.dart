@@ -29,74 +29,79 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
 
   void _showImageSourceSheet() {
     final cs = Theme.of(context).colorScheme;
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: cs.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) {
-        return Dialog(
-          backgroundColor: cs.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.document_scanner_outlined, size: 40, color: cs.primary),
-                const SizedBox(height: 16),
-                Text(
-                  'Select MRI Scan Input',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: cs.onSurface,
-                      ),
+        final bottomPadding = MediaQuery.of(context).viewInsets.bottom + MediaQuery.of(context).padding.bottom;
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.fromLTRB(24, 12, 24, 24 + bottomPadding),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: cs.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Choose how to provide the brain MRI image',
-                  style: TextStyle(color: cs.onSurfaceVariant),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _pickImage(ImageSource.camera);
-                    },
-                    icon: const Icon(Icons.camera_alt, size: 22),
-                    label: const Text(
-                      'Take Photo (Camera)',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Select MRI Scan Input',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6C63FF),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.camera);
+                  },
+                  icon: const Icon(Icons.camera_alt, size: 22),
+                  label: const Text(
+                    'Take Photo (Camera)',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6C63FF),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _pickImage(ImageSource.gallery);
-                    },
-                    icon: Icon(Icons.photo_library, size: 22, color: cs.onSurface),
-                    label: Text(
-                      'Choose from Gallery',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: cs.onSurface),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: cs.outlineVariant, width: 1.5),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.gallery);
+                  },
+                  icon: Icon(Icons.photo_library, size: 22, color: cs.onSurface),
+                  label: Text(
+                    'Choose from Gallery',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: cs.onSurface),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: cs.outlineVariant, width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
