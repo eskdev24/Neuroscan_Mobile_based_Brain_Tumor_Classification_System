@@ -135,24 +135,30 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final cs = Theme.of(context).colorScheme;
     return Column(
       children: [
-        Image.asset(
-          'assets/images/img_splash.png',
-          height: 64,
+        Center(
+          child: Image.asset(
+            'assets/images/img_splash.png',
+            height: 64,
+          ),
         ),
         const SizedBox(height: 16),
-        Text(
-          title,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: cs.onSurface,
-              ),
+        Center(
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: cs.onSurface,
+                ),
+          ),
         ),
         const SizedBox(height: 8),
-        Text(
-          subtitle,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: cs.onSurfaceVariant,
-              ),
+        Center(
+          child: Text(
+            subtitle,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: cs.onSurfaceVariant,
+                ),
+          ),
         ),
       ],
     );
@@ -161,6 +167,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget _buildSignInBody(AuthState authState) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildHeader(
           title: 'Welcome Back',
@@ -206,19 +213,23 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           onPressed: _submit,
         ),
         const SizedBox(height: 16),
-        TextButton(
-          onPressed: () {
-            if (_emailCtrl.text.isNotEmpty) {
-              ref
-                  .read(authControllerProvider.notifier)
-                  .resetPassword(_emailCtrl.text.trim());
-            }
-          },
-          child: const Text('Forgot password?'),
+        Center(
+          child: TextButton(
+            onPressed: () {
+              if (_emailCtrl.text.isNotEmpty) {
+                ref
+                    .read(authControllerProvider.notifier)
+                    .resetPassword(_emailCtrl.text.trim());
+              }
+            },
+            child: const Text('Forgot password?'),
+          ),
         ),
-        TextButton(
-          onPressed: _toggleMode,
-          child: const Text("Don't have an account? Sign Up"),
+        Center(
+          child: TextButton(
+            onPressed: _toggleMode,
+            child: const Text("Don't have an account? Sign Up"),
+          ),
         ),
       ],
     );
@@ -228,6 +239,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final cs = Theme.of(context).colorScheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (_signUpStep == 0) ...[
           _buildHeader(
@@ -373,9 +385,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           ),
         ],
         const SizedBox(height: 16),
-        TextButton(
-          onPressed: _toggleMode,
-          child: const Text('Already have an account? Sign In'),
+        Center(
+          child: TextButton(
+            onPressed: _toggleMode,
+            child: const Text('Already have an account? Sign In'),
+          ),
         ),
       ],
     );
