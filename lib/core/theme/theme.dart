@@ -22,6 +22,10 @@ final appTheme = ThemeData(
     surfaceContainerHigh: c.surfaceContainerHigh,
   ),
   typography: appTypography,
+  snackBarTheme: const SnackBarThemeData(
+    behavior: SnackBarBehavior.floating,
+    insetPadding: EdgeInsets.only(top: 60, left: 16, right: 16),
+  ),
   inputDecorationTheme: const InputDecorationTheme(
     labelStyle: TextStyle(textBaseline: TextBaseline.alphabetic),
     floatingLabelStyle: TextStyle(textBaseline: TextBaseline.alphabetic),

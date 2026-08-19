@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/routing/routes.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../../../shared/widgets/top_snackbar.dart';
 import '../application/auth_controller.dart';
 import '../application/auth_state.dart';
 
@@ -96,19 +97,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       if (next is AuthSuccess) {
         if (context.mounted) context.go('/${Routes.home}');
       } else if (next is AuthSignUpSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Account created! Please verify your email.'),
-          ),
-        );
+        showTopSnackBar(context, 'Account created! Please verify your email.');
         setState(() {
           _isSignUp = false;
           _signUpStep = 0;
         });
       } else if (next is AuthError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.message)),
-        );
+        showTopSnackBar(context, next.message, isError: true);
       }
     });
 

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/routing/routes.dart';
+import '../../../shared/widgets/top_snackbar.dart';
 import '../application/scan_controller.dart';
 import 'loading_overlay.dart';
 
@@ -122,12 +123,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       if (next.hasValue && next.value != null) {
         context.push('/${Routes.results}');
       } else if (next.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.error.toString()),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+        showTopSnackBar(context, next.error.toString(), isError: true);
       }
     });
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/widgets/primary_button.dart';
+import '../../../shared/widgets/top_snackbar.dart';
 import '../application/auth_controller.dart';
 import '../application/auth_state.dart';
 
@@ -32,9 +33,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       if (next is AuthSuccess) {
         setState(() => _sent = true);
       } else if (next is AuthError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.message)),
-        );
+        showTopSnackBar(context, next.message, isError: true);
       }
     });
 
