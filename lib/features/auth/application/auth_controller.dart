@@ -3,6 +3,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/auth_repository.dart';
 import 'auth_state.dart';
+import '../../scan/data/scan_repository.dart';
+import '../../scan/data/scan_local_dao.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   try {
@@ -38,6 +40,7 @@ class AuthController extends Notifier<AuthState> {
         return;
       }
       state = const AuthSuccess();
+      ScanRepository(ScanLocalDao()).syncFromFirebase();
     } on FirebaseAuthException catch (e) {
       state = AuthError(e.message ?? 'Sign in failed');
     } catch (e) {

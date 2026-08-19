@@ -17,35 +17,70 @@ class ScanRepository {
 
   Future<int> insert(ScanItem scan) async {
     final id = await _dao.insertScan(scan);
-    _backupToFirebase(scan.copyWith(id: id));
+    await _backupToFirebase(scan.copyWith(id: id));
     return id;
   }
 
   Future<void> deleteItem(ScanItem scan) async {
     await _dao.deleteScan(scan);
-    _removeFromFirebase(scan);
+    await _removeFromFirebase(scan);
   }
 
   Future<void> clear() async {
     await _dao.clearHistory();
-    _clearFirebase();
+    await _clearFirebase();
   }
 
-  void _backupToFirebase(ScanItem scan) {
+  Future<void> syncFromFirebase() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
-    FirebaseDatabase.instance.ref('scans/$uid/${scan.id}').set(scan.toJson());
+
+    try {
+      final snapshot =
+          await FirebaseDatabase.instance.ref('scans/$uid').get();
+      if (!snapshot.exists || snapshot.value == null) return;
+
+      final data = Map<String, dynamic>.from(snapshot.value as Map);
+      final localScans = await _dao.getAllScans();
+      final localIds = localScans.map((s) => s.id).toSet();
+
+      for (final entry in data.entries) {
+        try {
+          final scanData = Map<String, dynamic>.from(entry.value as Map);
+          final scan = ScanItem.fromJson(scanData);
+          if (!localIds.contains(scan.id)) {
+            await _dao.insertScan(scan);
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
   }
 
-  void _removeFromFirebase(ScanItem scan) {
+  Future<void> _backupToFirebase(ScanItem scan) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
-    FirebaseDatabase.instance.ref('scans/$uid/${scan.id}').remove();
+    try {
+      await FirebaseDatabase.instance
+          .ref('scans/$uid/${scan.id}')
+          .set(scan.toJson());
+    } catch (_) {}
   }
 
-  void _clearFirebase() {
+  Future<void> _removeFromFirebase(ScanItem scan) async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
-    FirebaseDatabase.instance.ref('scans/$uid').remove();
+    try {
+      await FirebaseDatabase.instance
+          .ref('scans/$uid/${scan.id}')
+          .remove();
+    } catch (_) {}
+  }
+
+  Future<void> _clearFirebase() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+    try {
+      await FirebaseDatabase.instance.ref('scans/$uid').remove();
+    } catch (_) {}
   }
 }
