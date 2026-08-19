@@ -95,6 +95,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
     ref.listen<AuthState>(authControllerProvider, (prev, next) {
       if (next is AuthSuccess) {
+        showTopSnackBar(context, 'Welcome back!');
         if (context.mounted) context.go('/${Routes.home}');
       } else if (next is AuthSignUpSuccess) {
         showTopSnackBar(context, 'Account created! Please verify your email.');
@@ -102,6 +103,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           _isSignUp = false;
           _signUpStep = 0;
         });
+      } else if (next is AuthPasswordResetSent) {
+        // Handled by forgot_password_screen
       } else if (next is AuthError) {
         showTopSnackBar(context, next.message, isError: true);
       }

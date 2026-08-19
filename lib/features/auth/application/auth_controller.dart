@@ -86,7 +86,7 @@ class AuthController extends Notifier<AuthState> {
     state = const AuthLoading();
     try {
       await _repo.resetPassword(email);
-      state = const AuthSuccess();
+      state = const AuthPasswordResetSent();
     } catch (e) {
       state = AuthError(e.toString());
     }

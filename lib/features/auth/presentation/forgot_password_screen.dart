@@ -30,7 +30,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final cs = Theme.of(context).colorScheme;
 
     ref.listen<AuthState>(authControllerProvider, (prev, next) {
-      if (next is AuthSuccess) {
+      if (next is AuthPasswordResetSent) {
         setState(() => _sent = true);
       } else if (next is AuthError) {
         showTopSnackBar(context, next.message, isError: true);
