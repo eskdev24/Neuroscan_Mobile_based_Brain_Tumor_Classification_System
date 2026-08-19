@@ -78,6 +78,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 height: 56,
                 child: OutlinedButton.icon(
                   onPressed: () async {
+                    showTopSnackBar(context, 'Signed out successfully');
                     await ref.read(profileProvider.notifier).signOut();
                     if (context.mounted) context.go('/${Routes.welcome}');
                   },

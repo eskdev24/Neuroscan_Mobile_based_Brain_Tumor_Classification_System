@@ -87,8 +87,10 @@ class AuthController extends Notifier<AuthState> {
     try {
       await _repo.resetPassword(email);
       state = const AuthPasswordResetSent();
+    } on FirebaseAuthException catch (e) {
+      state = AuthError(e.message ?? 'Failed to send reset link');
     } catch (e) {
-      state = AuthError(e.toString());
+      state = AuthError('Failed to send reset link: $e');
     }
   }
 
